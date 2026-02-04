@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.animaapp/anima",
+  "name": "io.github.AnimaApp/anima",
   "title": "Anima MCP Server",
   "description": "Connect your AI coding agent to Anima Playground, Figma designs, and your team's design system. Bridge the gap between prototypes and production code.",
   "repository": {
