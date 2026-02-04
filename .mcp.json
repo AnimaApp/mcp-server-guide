@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "anima": {
+      "type": "http",
+      "url": "https://public-api.animaapp.com/v1/mcp"
+    }
+  }
+}
