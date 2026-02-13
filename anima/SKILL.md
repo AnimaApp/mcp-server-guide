@@ -1,7 +1,7 @@
 ---
 name: anima
-description: Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), capture a website's visual DNA (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy.
-compatibility: Requires Anima MCP server connection (HTTP transport). For headless environments, requires npx for mcporter CLI.
+description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), capture a website's visual DNA (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
+compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires npx for mcporter CLI."
 metadata: {"openclaw":{"emoji":"🎨","requires":{"bins":["npx"]}},"author":"animaapp","version":"1.0"}
 ---
 
