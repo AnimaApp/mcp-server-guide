@@ -49,15 +49,9 @@ User says: "Implement this Figma component: https://figma.com/design/kL9xQn2VwM8
 1. Parse URL: fileKey=`kL9xQn2VwM8pYrTb4ZcHjF`, nodeId=`42:15` (convert `-` to `:`)
 2. Detect project stack: React + CSS Modules + TypeScript + MUI
 3. Call `codegen-figma_to_code(fileKey="kL9xQn2VwM8pYrTb4ZcHjF", nodesId=["42:15"], framework="react", styling="css_modules", language="typescript", uiLibrary="mui", assetsBaseUrl="./assets")`
-4. Download snapshot images from `snapshotsUrls` for visual reference
-5. View snapshots to understand exact visual appearance
-6. Read `guidelines` from the response
-7. Download all assets, place in `./assets`
-8. Parse `data-variant` attributes, map to MUI component props
-9. Extract CSS variables, use exact colors
-10. Compare final implementation against snapshot for visual accuracy
+4. Download snapshots and assets, follow `guidelines` from the response, implement into project
 
-**Result:** Component matching the Figma design with pixel-perfect fidelity, using MUI and CSS Modules.
+**Result:** Component matching the Figma design, using MUI and CSS Modules.
 
 ## Example 5: Pull playground code into a project (Path B)
 
@@ -66,13 +60,9 @@ User says: "Download the playground we created and integrate it into my project"
 **Actions:**
 1. Call `project-download_from_playground(playgroundUrl="https://dev.animaapp.com/chat/abc123xyz")`
 2. Download and extract the zip
-3. Detect project stack from existing codebase
-4. Adapt components to use project's existing Button, Card, and Table components
-5. Replace generated color values with project's design tokens
-6. Wire up to project's routing and data layer
-7. Validate layout, typography, and responsive behavior
+3. Adapt code to the project's stack, components, and design tokens
 
-**Result:** Playground code integrated into the existing project, following its conventions.
+**Result:** Playground code integrated into the existing project.
 
 ## Example 6: Publishing as a design system package
 

@@ -1,8 +1,9 @@
 ---
 name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
-compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires npx for mcporter CLI."
-metadata: {"openclaw":{"emoji":"🎨","requires":{"bins":["npx"]}},"author":"animaapp","version":"1.0"}
+compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires mcporter CLI (via npx) and an ANIMA_API_TOKEN."
+homepage: "https://github.com/AnimaApp/mcp-server-guide"
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"bins":["npx"],"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0"}
 ---
 
 # Design and Build with Anima
@@ -19,27 +20,24 @@ Build complete applications from scratch. No local codebase needed. Anima handle
 
 This path is powerful for **parallel variant creation**. Generate multiple versions of the same idea with different prompts, all at the same time. Pick the best one, then open the playground URL to keep refining. All without writing a line of code or managing infrastructure.
 
-**Flows:** Prompt to Code (p2c), Link to Code (l2c), Figma to Playground (f2c)
+**Create Anima Playgrounds by:** Prompt, Clone URL, Figma URL
 
 **What you get:**
 - A fully working application in an Anima Playground
-- Scalable database already connected
-- Scalable hosting when you publish
 - The ability to generate multiple variants in parallel and compare them
 - No tokens wasted on file scanning, dependency resolution, or build tooling
-
-**Future capabilities:** Iteration on published apps, add/remove database records via API (e.g., "add 3 blog posts, set their publish dates 3 days apart").
+- Scalable database already connected
+- Scalable hosting when you publish
 
 ### Path B: Integrate into Codebase (Design-Aware Code Generation)
 
-Pull design elements and experiences from Anima into your existing project. Use this when you have a codebase and want to implement specific components or pages from a Figma design or an existing Anima Playground.
+Pull design elements and experiences from Anima into your existing project. Use this when you have a codebase and want to implement specific components or pages from a Figma design url or an existing Anima Playground.
 
-**Flows:** Figma to Code (codegen), Download from Playground
+**Flows:** Figma URL to Code (codegen), Anima Playground to Code
 
 **What you get:**
-- Generated code files adapted to your stack
-- Design tokens, assets, and implementation guidelines
-- Visual snapshots for pixel-perfect comparison
+- Generated code from Anima playgrounds designs adapted to your stack
+- Precise design tokens, assets, and implementation guidelines
 
 ---
 
@@ -48,7 +46,7 @@ Pull design elements and experiences from Anima into your existing project. Use 
 - Anima MCP server must be connected and accessible (see [Setup](references/setup.md))
 - User must have an Anima account (free tier available)
 - For Figma flows: Figma account must be connected during Anima authentication
-- For OpenClaw/headless environments: `mcporter` CLI (installed via npm/npx) and an Anima API token
+- For OpenClaw/headless environments: mcp access like `mcporter` CLI (installed via npm/npx) and an Anima API token
 
 ## Important: Timeouts
 
@@ -147,23 +145,7 @@ Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a
 recent activity feed. Professional but approachable. Think Linear meets Stripe.
 ```
 
-### Prompt vs guidelines separation
-
-Use `prompt` for **design intent** (what to build, for whom, how it should feel). Use `guidelines` for **technical constraints** (component libraries, coding conventions).
-
-| Goes in `prompt` | Goes in `guidelines` |
-|---|---|
-| "Dashboard for a B2B product team" | "Use shadcn components" |
-| "Clean, minimal feel" | "Dark mode" |
-| "KPI cards, trend chart, activity feed" | "Server-side rendering" |
-
----
-
 ## Path A: Create & Publish
-
-This path builds complete applications with no local codebase required. Anima generates the design, code, database, and hosting. You just describe what you want.
-
-The key superpower here is **parallel variant creation**: generate multiple versions of the same idea with different prompts, all at the same time. Your AI agent spends tokens on creative exploration, not on scanning files or resolving dependencies. The user picks a favorite, then opens the playground URL to keep refining.
 
 ### Step A1: Identify the Flow
 
@@ -364,7 +346,7 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
    }' --output json
    ```
 
-4. **Take a full-page screenshot** of each published live URL using ScreenshotOne (API key in env var `SCREENSHOT_ONE_ACCESS_KEY`):
+4. **Take a full-page screenshot** of each published live URL using any screenshotting method or use ScreenshotOne look if it has installed as a tool with these parameters (animated websites with scroll animations are more challenging to screenshot properly)
    ```bash
    curl -sL -o screenshot.png "https://api.screenshotone.com/take?url=<live-url>&access_key=$SCREENSHOT_ONE_ACCESS_KEY&full_page=true&delay=5&viewport_width=1280&format=png"
    ```
@@ -390,8 +372,6 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
 
 ## Path B: Integrate into Codebase
 
-This path is for pulling design elements and experiences from Anima or Figma into your existing project. The agent needs to understand your codebase to generate code that fits.
-
 ### Step B1: Identify the Flow
 
 | User provides | Flow | Tool |
@@ -400,8 +380,6 @@ This path is for pulling design elements and experiences from Anima or Figma int
 | Anima Playground URL + wants code locally | Download | `project-download_from_playground` |
 
 ### Step B2: Detect Project Context
-
-Before calling any tool, analyze the user's project to detect the technology stack. This ensures generated code matches their existing patterns.
 
 **Check these files:**
 - `package.json` for framework (React, Vue), styling (Tailwind), and UI libraries (MUI, Ant Design, shadcn)
@@ -426,8 +404,6 @@ Before calling any tool, analyze the user's project to detect the technology sta
 ### Step B3: Generate Code
 
 #### Figma to Code (direct implementation)
-
-For implementing Figma designs directly into the user's codebase. Returns generated code files, assets, visual snapshots, and implementation guidelines.
 
 ```
 codegen-figma_to_code(
@@ -473,31 +449,7 @@ project-download_from_playground(
 
 **Returns:** Pre-signed download URL for a zip file (valid for 10 minutes). Download the zip, extract it, and adapt the code to the user's project conventions.
 
-### Step B4: Adapt to Target Codebase
-
-Translate the generated code into the project's framework, styles, and conventions.
-
-**Key principles:**
-- Treat Anima output as a representation of design and behavior, not as final code style
-- Replace generated utility classes with the project's preferred styling approach
-- Reuse existing components (buttons, inputs, typography) instead of duplicating functionality
-- Use the project's color system, typography scale, and spacing tokens consistently
-- Respect existing routing, state management, and data-fetch patterns
-
-### Step B5: Validate and Ship
-
-Strive for pixel-perfect visual parity with the original design. Before marking complete:
-
-- [ ] Layout matches design (spacing, alignment, sizing)
-- [ ] Colors match exactly (use CSS variables from generated code)
-- [ ] Typography matches (font, size, weight, line height)
-- [ ] Interactive states work as designed (hover, active, disabled)
-- [ ] Assets render correctly (download from returned URLs, use SVG for icons)
-- [ ] Responsive behavior follows design constraints
-- [ ] Code follows project conventions (naming, file structure, linting)
-- [ ] Accessibility standards met
-- [ ] When design system tokens conflict with generated values, prefer tokens but adjust minimally to match visuals
-- [ ] Use existing design system components where possible. Extend rather than duplicate.
+**Important:** Treat Anima output as a representation of design and behavior, not as final code style. Adapt it to your project's conventions, components, and design tokens.
 
 ---
 
@@ -508,5 +460,5 @@ Strive for pixel-perfect visual parity with the original design. Before marking 
 - **[Examples](references/examples.md):** End-to-end walkthroughs for common scenarios
 - **[Troubleshooting](references/troubleshooting.md):** Common issues and solutions
 - [Anima MCP Documentation](https://docs.animaapp.com/docs/integrations/anima-mcp)
-- [Anima Playground](https://playground.animaapp.com)
+- [Anima Playground](https://dev.animaapp.com)
 - [Enterprise Design System Setup](https://anima-forms.typeform.com/to/gDr77Woe)
