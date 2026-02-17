@@ -1,6 +1,6 @@
 ---
 name: anima
-description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), capture a website's visual DNA (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
+description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
 compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires npx for mcporter CLI."
 metadata: {"openclaw":{"emoji":"🎨","requires":{"bins":["npx"]}},"author":"animaapp","version":"1.0"}
 ---
@@ -17,7 +17,7 @@ There are **two distinct paths** depending on what you're trying to do:
 
 Build complete applications from scratch. No local codebase needed. Anima handles everything: design, code generation, scalable database, and hosting. You go from idea to live URL in minutes.
 
-This path is powerful for **iterating on design through prompts**. You can generate multiple variants of the same idea with different visual directions, compare them side by side, and pick the best one. All without writing a line of code or managing infrastructure.
+This path is powerful for **parallel variant creation**. Generate multiple versions of the same idea with different prompts, all at the same time. Pick the best one, then open the playground URL to keep refining. All without writing a line of code or managing infrastructure.
 
 **Flows:** Prompt to Code (p2c), Link to Code (l2c), Figma to Playground (f2c)
 
@@ -25,7 +25,7 @@ This path is powerful for **iterating on design through prompts**. You can gener
 - A fully working application in an Anima Playground
 - Scalable database already connected
 - Scalable hosting when you publish
-- The ability to generate multiple variants in parallel and iterate on prompts
+- The ability to generate multiple variants in parallel and compare them
 - No tokens wasted on file scanning, dependency resolution, or build tooling
 
 **Future capabilities:** Iteration on published apps, add/remove database records via API (e.g., "add 3 blog posts, set their publish dates 3 days apart").
@@ -63,7 +63,156 @@ Anima's `playground-create` tool generates full applications from scratch. This 
 
 ## Setup
 
-If any MCP call fails because Anima MCP is not connected, pause and set it up. See [references/setup.md](references/setup.md) for full setup instructions covering interactive environments (Claude Code, Cursor, Codex) and headless environments (OpenClaw, mcporter).
+If any MCP call fails because Anima MCP is not connected, pause and set it up.
+
+**Interactive environments** (Claude Code, Cursor, Codex): The user authenticates via browser OAuth. Add the Anima MCP server, then authenticate when prompted. No API key needed.
+
+**Headless environments** (OpenClaw, CI/CD, server-side agents): Use an API key. The user generates one from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com). Pass it as a Bearer token in the `Authorization` header.
+
+See [references/setup.md](references/setup.md) for full step-by-step instructions for each environment.
+
+---
+
+## Choosing the Right Path
+
+Before diving into tools and parameters, decide which path fits the user's goal.
+
+### When to use Path A (Create & Publish)
+
+- User wants to **build something new** from a description, reference site, or Figma design
+- User wants a **live URL** they can share immediately
+- No existing codebase to integrate into
+- Goal is prototyping, exploring visual directions, or shipping a standalone app
+
+### When to use Path B (Integrate into Codebase)
+
+- User has an **existing project** and wants to add a component or page from Figma
+- User wants **generated code files** to drop into their repo, not a hosted app
+- User already built something in an Anima Playground and wants to pull the code locally
+
+### Ambiguous cases
+
+| User says | Likely path | Why |
+|---|---|---|
+| "Implement this Figma design" | **Path B** | "Implement" implies code in their project |
+| "Turn this Figma into a live site" | **Path A** (f2c) | "Live site" means they want hosting |
+| "Build me an app like this" + URL | **Path A** (l2c) | Clone and rebuild from scratch |
+| "Add this Figma component to my project" | **Path B** | "Add to my project" = codebase integration |
+| "Clone this website" | **Path A** (l2c) | Clone = capture and rebuild from scratch |
+| "Download the playground code" | **Path B** | Wants files locally |
+
+When still unclear, ask: "Do you want a live hosted app, or code files to add to your project?"
+
+---
+
+## Understand Intent Before Building
+
+Not every request is ready to build. Some need clarification. The key is knowing when to ask and when to just go.
+
+### When to ask questions
+
+Ask when the request is **too vague to write a strong prompt**. If you can't identify the purpose, audience, or core features, you need more context.
+
+**Signals to ask:**
+- "Build me a website" (what kind? for whom?)
+- "Make something for my business" (what does the business do? what's the goal?)
+- "Create an app" (what should it do?)
+
+### When NOT to ask
+
+Don't ask when the user has given enough context to craft a prompt with purpose, audience, and key features. Err toward building.
+
+**Signals to just build:**
+- "Build a recipe sharing app where users can upload photos and rate each other's dishes" (clear purpose, audience implied, features named)
+- "Clone stripe.com" (unambiguous)
+- "Turn this Figma into a live site" + Figma URL (clear intent and input)
+
+### The threshold rule
+
+Can you write a prompt that includes **purpose**, **audience**, and **3-5 key features**? Yes = build. No = ask.
+
+### What to clarify
+
+When you do need to ask, focus on:
+- **Purpose.** What is this app for? What problem does it solve?
+- **Audience.** Who will use it? (B2B teams, consumers, internal staff)
+- **Core features.** What are the 3-5 things it must do?
+- **Visual direction.** Any reference sites, mood, or style preference? (optional but helpful)
+
+### What NOT to ask about
+
+Anima handles these. Don't burden the user:
+- Tech stack (default: React + Tailwind)
+- Color palette, specific hex values, font sizes
+- Component libraries (pass as `uiLibrary` parameter if known)
+- Page count, navigation structure, responsive breakpoints
+
+### One-round rule
+
+Ask everything in a single message. Don't drip-feed questions across multiple turns. Batch your questions and let the user answer once.
+
+### Escape hatch: Explore Mode
+
+If the user is vague and doesn't want to answer questions, skip clarification entirely. Use [Explore Mode](#explore-mode-parallel-variants) to generate 3 variants with different interpretations and let them pick. Showing beats asking.
+
+---
+
+## Crafting Prompts for Anima
+
+Anima is a design-aware AI. It understands mood, audience, and intent. Treat it like a creative collaborator, not a code compiler.
+
+### Core principle: paint a picture, don't write a spec
+
+Anima makes better design decisions when you describe the *feel* of what you want, not the pixel-level implementation. Over-specifying with code snippets, hex colors, and pixel values **overrides Anima's design intelligence** and produces generic results.
+
+### What to include in prompts
+
+- **Purpose.** What the app does and why it exists
+- **Audience.** Who it's for (affects visual tone and complexity)
+- **Mood and style.** "Clean and minimal", "bold and playful", "enterprise and polished"
+- **Key features.** The 3-5 things the app must have, described by function not implementation
+- **Content tone.** Professional, casual, technical, friendly
+
+### What to leave out of prompts
+
+- Code snippets, CSS values, pixel dimensions
+- Hex colors, RGB values, specific font sizes
+- Component library names (use the `uiLibrary` parameter instead)
+- Implementation details like "use flexbox" or "add a useEffect hook"
+- File structure or folder layout
+
+### Good vs bad prompts
+
+**Bad (over-specified):**
+```
+Create a dashboard. Use #1a1a2e background, #16213e sidebar at 280px width,
+#0f3460 cards with 16px padding, border-radius 12px. Header height 64px with
+a flex row, justify-between. Font: Inter 14px for body, 24px bold for headings.
+```
+
+This tells Anima *exactly* what to render, which defeats the purpose. The result will be technically correct but visually flat.
+
+**Good (descriptive):**
+```
+SaaS analytics dashboard for a B2B product team. Clean, minimal feel.
+Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a
+recent activity feed. Professional but approachable. Think Linear meets Stripe.
+```
+
+This gives Anima creative room to design something cohesive. The colors, spacing, and typography will be internally consistent because Anima chose them as a system.
+
+### Prompt vs guidelines separation
+
+Use the `prompt` parameter for **design intent**: what to build, for whom, and how it should feel.
+
+Use the `guidelines` parameter for **technical constraints**: component libraries, coding conventions, specific framework features.
+
+| Goes in `prompt` | Goes in `guidelines` |
+|---|---|
+| "Dashboard for a B2B product team" | "Use shadcn components" |
+| "Clean, minimal feel" | "Dark mode" |
+| "KPI cards, trend chart, activity feed" | "Server-side rendering" |
+| "Professional but approachable" | "Follow existing design token conventions" |
 
 ---
 
@@ -71,15 +220,39 @@ If any MCP call fails because Anima MCP is not connected, pause and set it up. S
 
 This path builds complete applications with no local codebase required. Anima generates the design, code, database, and hosting. You just describe what you want.
 
-The key superpower here is **prompt iteration**: generate multiple variants, compare them visually, and refine your direction through natural language. Your AI agent spends tokens on creative exploration, not on scanning files or resolving dependencies.
+The key superpower here is **parallel variant creation**: generate multiple versions of the same idea with different prompts, all at the same time. Your AI agent spends tokens on creative exploration, not on scanning files or resolving dependencies. The user picks a favorite, then opens the playground URL to keep refining.
 
 ### Step A1: Identify the Flow
 
-| User provides | Flow | Tool |
-|---|---|---|
-| Text description or prompt | p2c | `playground-create` with type="p2c" |
-| Website URL (e.g., stripe.com) | l2c | `playground-create` with type="l2c" |
-| Figma URL | f2c | `playground-create` with type="f2c" |
+Determine which flow to use based on what the user provides and what they want.
+
+**User has a text description or idea → p2c**
+
+The most flexible path. Anima designs everything from your description. Best for new apps, prototypes, and creative exploration.
+
+**User has a website URL → l2c**
+
+Use l2c to clone the site. Anima recreates the full site into an editable playground.
+
+**User has a Figma URL → f2c (Path A) or codegen (Path B)**
+
+Two sub-cases:
+- **"Turn this into a live app"** or **"Make this a working site"** → f2c (Path A). Creates a full playground from the Figma design
+- **"Implement this in my project"** or **"Add this component to my codebase"** → codegen (Path B). Generates code files for integration
+
+**Strengths of each flow:**
+- **p2c:** Most creative freedom. Anima makes all design decisions. Best for exploration and new ideas
+- **l2c:** Full site clone. Recreates the entire site as editable code. Best for cloning existing sites
+- **f2c:** Bridge from design to code. Best when a Figma design already exists and needs to become functional
+
+**Quick reference:**
+
+| User provides | Intent | Flow | Tool |
+|---|---|---|---|
+| Text description | Build something new | p2c | `playground-create` type="p2c" |
+| Website URL | Clone it | l2c | `playground-create` type="l2c" |
+| Figma URL | Make it a live app | f2c | `playground-create` type="f2c" |
+| Figma URL | Implement in my project | codegen | `codegen-figma_to_code` (Path B) |
 
 ### Step A2: Create
 
@@ -91,7 +264,7 @@ Describe what you want in plain language. Anima designs and generates a complete
 ```
 playground-create(
   type: "p2c",
-  prompt: "Create a dashboard with a sidebar, header, and analytics cards",
+  prompt: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
   framework: "react",
   styling: "tailwind",
   guidelines: "Use shadcn components, dark mode"
@@ -102,7 +275,7 @@ playground-create(
 ```bash
 npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
   "type": "p2c",
-  "prompt": "Create a dashboard with a sidebar, header, and analytics cards",
+  "prompt": "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
   "framework": "react",
   "styling": "tailwind",
   "guidelines": "Use shadcn components, dark mode"
@@ -122,7 +295,7 @@ npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
 
 #### Link to Code (l2c)
 
-Provide a website URL. Anima captures the site's visual DNA (colors, typography, spacing, layout) and translates it into editable, design-aware code.
+Provide a website URL. Anima clones the full site into an editable playground with production-ready code.
 
 ```
 playground-create(
@@ -272,7 +445,7 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
    curl -sL -o screenshot.png "https://api.screenshotone.com/take?url=<live-url>&access_key=$SCREENSHOT_ONE_ACCESS_KEY&full_page=true&delay=5&viewport_width=1280&format=png"
    ```
    - `full_page=true` captures the entire scrollable page
-   - `delay=5` waits 5 seconds for React/JS to render before capture
+   - `delay=5` waits 5 seconds for React/JS to render before capture. For heavier SPAs, use `delay=8` or `delay=10`
    - Returns proper PNG images, renders SPAs correctly
    - Free tier: 100 screenshots/month
    - Send screenshots to the user via the message tool with `filePath`
@@ -287,6 +460,7 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
 - Vary the visual approach: e.g., "minimal and clean", "bold and colorful", "enterprise and professional"
 - Add specific guidelines to each variant to differentiate them
 - If the user mentioned a reference site or style, incorporate it into one variant
+- Follow the [prompt crafting principles](#crafting-prompts-for-anima) above: describe mood and purpose, not implementation details
 
 ### Single Build + Publish
 

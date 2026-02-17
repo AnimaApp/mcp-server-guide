@@ -5,10 +5,10 @@
 User says: "Build me a SaaS analytics dashboard on Anima"
 
 **Actions:**
-1. Generate 3 prompt variants:
-   - V1: "SaaS analytics dashboard with sidebar navigation, KPI cards showing MRR, churn rate, active users, and a revenue chart. Clean, minimal design with a white background and subtle shadows."
-   - V2: "SaaS analytics dashboard with a dark theme, glowing accent colors, top navigation bar, real-time metrics grid, and an interactive data visualization section. Modern and bold."
-   - V3: "SaaS analytics dashboard inspired by Linear's design language. Left sidebar with icon navigation, compact metric tiles, activity feed, and a usage heatmap. Monochrome with one accent color."
+1. Generate 3 prompt variants. Each describes mood and audience, not CSS values:
+   - V1: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for MRR, churn rate, and active users, a revenue trend chart, and a recent activity feed. Professional but approachable. Lots of whitespace."
+   - V2: "SaaS analytics dashboard for a data-driven startup. Dark theme, bold accent colors, high information density. Top navigation bar, real-time metrics grid, and an interactive data visualization section. Feels like a mission control center."
+   - V3: "SaaS analytics dashboard inspired by Linear's design language. Quiet, focused, monochrome with one accent color. Left sidebar with icon navigation, compact metric tiles, activity feed, and a usage heatmap. Feels like a tool you'd use daily without fatigue."
 2. Launch all 3 `playground-create` calls in parallel (p2c, react, tailwind)
 3. As each returns, call `playground-publish` (webapp mode)
 4. Browse each live URL and take a screenshot
@@ -21,7 +21,7 @@ User says: "Build me a SaaS analytics dashboard on Anima"
 User says: "Build me a SaaS dashboard with a sidebar, analytics cards, and a recent activity table"
 
 **Actions:**
-1. Call `playground-create(type="p2c", prompt="SaaS dashboard with sidebar navigation, analytics cards showing key metrics, and a recent activity table", framework="react", styling="tailwind")`
+1. Call `playground-create(type="p2c", prompt="SaaS analytics dashboard for a product team tracking growth metrics. Sidebar navigation, analytics cards for key KPIs, and a recent activity table showing user actions. Clean and professional, easy to scan at a glance.", framework="react", styling="tailwind")`
 2. Receive `{ sessionId, playgroundUrl }`
 3. Call `playground-publish(sessionId="...", mode="webapp")`
 4. Take a full-page screenshot via ScreenshotOne

@@ -37,7 +37,17 @@ Click "Connect" next to Anima in MCP settings. (Optional) Connect your Figma acc
 
 Uses `mcporter` CLI with an API token. No browser required.
 
-1. Ensure the Anima API token is available as an environment variable (e.g., `ANIMA_API_TOKEN`).
+### Getting your API key
+
+1. Go to [dev.animaapp.com](https://dev.animaapp.com)
+2. Open **Settings** (gear icon)
+3. Navigate to **API Keys**
+4. Choose an expiration period and click **Generate API Key**
+5. Copy the key and store it securely. You won't be able to see it again.
+
+### Connecting with the API key
+
+1. Set the Anima API key as an environment variable (e.g., `ANIMA_API_TOKEN`).
 2. Add the Anima MCP server to mcporter config:
    ```bash
    npx mcporter config add anima-mcp \
