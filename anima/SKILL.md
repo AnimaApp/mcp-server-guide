@@ -67,7 +67,7 @@ If any MCP call fails because Anima MCP is not connected, pause and set it up.
 
 **Interactive environments** (Claude Code, Cursor, Codex): The user authenticates via browser OAuth. Add the Anima MCP server, then authenticate when prompted. No API key needed.
 
-**Headless environments** (OpenClaw, CI/CD, server-side agents): Use an API key. The user generates one from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com). Pass it as a Bearer token in the `Authorization` header.
+**Headless environments** (OpenClaw, Slackbots etc, server-side agents): Use an API key. The user generates one from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com). Pass it as a Bearer token in the `Authorization` header.
 
 See [references/setup.md](references/setup.md) for full step-by-step instructions for each environment.
 
@@ -105,83 +105,33 @@ When still unclear, ask: "Do you want a live hosted app, or code files to add to
 
 ---
 
-## Understand Intent Before Building
+## From Request to Prompt
 
-Not every request is ready to build. Some need clarification. The key is knowing when to ask and when to just go.
+Before calling any tool, the agent needs to decide: is this request ready to build, or does it need clarification? And if it's ready, how do you write a prompt that lets Anima shine?
 
-### When to ask questions
+### When to ask vs when to build
 
-Ask when the request is **too vague to write a strong prompt**. If you can't identify the purpose, audience, or core features, you need more context.
-
-**Signals to ask:**
-- "Build me a website" (what kind? for whom?)
-- "Make something for my business" (what does the business do? what's the goal?)
-- "Create an app" (what should it do?)
-
-### When NOT to ask
-
-Don't ask when the user has given enough context to craft a prompt with purpose, audience, and key features. Err toward building.
+**Threshold rule:** Can you write a prompt that includes **purpose**, **audience**, and **3-5 key features**? Yes = build. No = ask.
 
 **Signals to just build:**
 - "Build a recipe sharing app where users can upload photos and rate each other's dishes" (clear purpose, audience implied, features named)
 - "Clone stripe.com" (unambiguous)
 - "Turn this Figma into a live site" + Figma URL (clear intent and input)
 
-### The threshold rule
+**Signals to ask:**
+- "Build me a website" (what kind? for whom?)
+- "Make something for my business" (what does the business do?)
+- "Create an app" (what should it do?)
 
-Can you write a prompt that includes **purpose**, **audience**, and **3-5 key features**? Yes = build. No = ask.
+When you ask, ask everything in **one message**. Don't drip-feed questions. If the user is vague and doesn't want to answer, skip clarification and use [Explore Mode](#explore-mode-parallel-variants) to generate 3 variants instead. Showing beats asking.
 
-### What to clarify
+### Crafting the prompt
 
-When you do need to ask, focus on:
-- **Purpose.** What is this app for? What problem does it solve?
-- **Audience.** Who will use it? (B2B teams, consumers, internal staff)
-- **Core features.** What are the 3-5 things it must do?
-- **Visual direction.** Any reference sites, mood, or style preference? (optional but helpful)
+Anima is a design-aware AI. Treat it like a creative collaborator, not a code compiler. Describe the *feel* of what you want, not the pixel-level implementation. Over-specifying with code and hex values **overrides Anima's design intelligence** and produces generic results.
 
-### What NOT to ask about
+**Include in prompts:** purpose, audience, mood/style, 3-5 key features, content tone.
 
-Anima handles these. Don't burden the user:
-- Tech stack (default: React + Tailwind)
-- Color palette, specific hex values, font sizes
-- Component libraries (pass as `uiLibrary` parameter if known)
-- Page count, navigation structure, responsive breakpoints
-
-### One-round rule
-
-Ask everything in a single message. Don't drip-feed questions across multiple turns. Batch your questions and let the user answer once.
-
-### Escape hatch: Explore Mode
-
-If the user is vague and doesn't want to answer questions, skip clarification entirely. Use [Explore Mode](#explore-mode-parallel-variants) to generate 3 variants with different interpretations and let them pick. Showing beats asking.
-
----
-
-## Crafting Prompts for Anima
-
-Anima is a design-aware AI. It understands mood, audience, and intent. Treat it like a creative collaborator, not a code compiler.
-
-### Core principle: paint a picture, don't write a spec
-
-Anima makes better design decisions when you describe the *feel* of what you want, not the pixel-level implementation. Over-specifying with code snippets, hex colors, and pixel values **overrides Anima's design intelligence** and produces generic results.
-
-### What to include in prompts
-
-- **Purpose.** What the app does and why it exists
-- **Audience.** Who it's for (affects visual tone and complexity)
-- **Mood and style.** "Clean and minimal", "bold and playful", "enterprise and polished"
-- **Key features.** The 3-5 things the app must have, described by function not implementation
-- **Content tone.** Professional, casual, technical, friendly
-
-### What to leave out of prompts
-
-- Code snippets, CSS values, pixel dimensions
-- Hex colors, RGB values, specific font sizes
-- Component library names (use the `uiLibrary` parameter instead)
-- Implementation details like "use flexbox" or "add a useEffect hook"
-- File structure or folder layout
-
-### Good vs bad prompts
+**Leave out of prompts:** code snippets, CSS values, hex colors, pixel dimensions, font sizes, component library names (use the `uiLibrary` parameter instead), implementation details, file structure.
 
 **Bad (over-specified):**
 ```
@@ -190,8 +140,6 @@ Create a dashboard. Use #1a1a2e background, #16213e sidebar at 280px width,
 a flex row, justify-between. Font: Inter 14px for body, 24px bold for headings.
 ```
 
-This tells Anima *exactly* what to render, which defeats the purpose. The result will be technically correct but visually flat.
-
 **Good (descriptive):**
 ```
 SaaS analytics dashboard for a B2B product team. Clean, minimal feel.
@@ -199,20 +147,15 @@ Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a
 recent activity feed. Professional but approachable. Think Linear meets Stripe.
 ```
 
-This gives Anima creative room to design something cohesive. The colors, spacing, and typography will be internally consistent because Anima chose them as a system.
-
 ### Prompt vs guidelines separation
 
-Use the `prompt` parameter for **design intent**: what to build, for whom, and how it should feel.
-
-Use the `guidelines` parameter for **technical constraints**: component libraries, coding conventions, specific framework features.
+Use `prompt` for **design intent** (what to build, for whom, how it should feel). Use `guidelines` for **technical constraints** (component libraries, coding conventions).
 
 | Goes in `prompt` | Goes in `guidelines` |
 |---|---|
 | "Dashboard for a B2B product team" | "Use shadcn components" |
 | "Clean, minimal feel" | "Dark mode" |
 | "KPI cards, trend chart, activity feed" | "Server-side rendering" |
-| "Professional but approachable" | "Follow existing design token conventions" |
 
 ---
 
@@ -239,11 +182,6 @@ Use l2c to clone the site. Anima recreates the full site into an editable playgr
 Two sub-cases:
 - **"Turn this into a live app"** or **"Make this a working site"** → f2c (Path A). Creates a full playground from the Figma design
 - **"Implement this in my project"** or **"Add this component to my codebase"** → codegen (Path B). Generates code files for integration
-
-**Strengths of each flow:**
-- **p2c:** Most creative freedom. Anima makes all design decisions. Best for exploration and new ideas
-- **l2c:** Full site clone. Recreates the entire site as editable code. Best for cloning existing sites
-- **f2c:** Bridge from design to code. Best when a Figma design already exists and needs to become functional
 
 **Quick reference:**
 
@@ -407,26 +345,12 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
    - Variant 2: A more creative or opinionated take
    - Variant 3: A different visual style or layout approach
 
-2. **Launch all 3 playground-create calls in parallel** as background processes:
+2. **Launch all 3 playground-create calls in parallel** (one per variant):
    ```bash
-   # All three run simultaneously
+   # Repeat for each variant prompt, all running simultaneously
    npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
      "type": "p2c",
-     "prompt": "<variant-1-prompt>",
-     "framework": "react",
-     "styling": "tailwind"
-   }' --output json &
-
-   npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
-     "type": "p2c",
-     "prompt": "<variant-2-prompt>",
-     "framework": "react",
-     "styling": "tailwind"
-   }' --output json &
-
-   npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
-     "type": "p2c",
-     "prompt": "<variant-3-prompt>",
+     "prompt": "<variant-prompt>",
      "framework": "react",
      "styling": "tailwind"
    }' --output json &
@@ -460,25 +384,7 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
 - Vary the visual approach: e.g., "minimal and clean", "bold and colorful", "enterprise and professional"
 - Add specific guidelines to each variant to differentiate them
 - If the user mentioned a reference site or style, incorporate it into one variant
-- Follow the [prompt crafting principles](#crafting-prompts-for-anima) above: describe mood and purpose, not implementation details
-
-### Single Build + Publish
-
-For simpler requests where the user just wants one version:
-
-1. Call `playground-create` with the user's prompt
-2. When it returns, immediately call `playground-publish` with the session ID
-3. Take a full-page screenshot via ScreenshotOne
-4. Return the screenshot and live URL
-
-### Clone + Publish
-
-For "clone this website" requests:
-
-1. Call `playground-create` with type="l2c" and the target URL
-2. When it returns, call `playground-publish`
-3. Take a full-page screenshot via ScreenshotOne
-4. Return screenshot and live URL
+- Follow the [prompt crafting principles](#crafting-the-prompt) above: describe mood and purpose, not implementation details
 
 ---
 
@@ -577,61 +483,21 @@ Translate the generated code into the project's framework, styles, and conventio
 - Reuse existing components (buttons, inputs, typography) instead of duplicating functionality
 - Use the project's color system, typography scale, and spacing tokens consistently
 - Respect existing routing, state management, and data-fetch patterns
-- Parse `data-variant` attributes from generated components and map them to your component props
-- Extract CSS variables from generated styles and use the exact color values
 
-### Step B5: Achieve Visual Parity
+### Step B5: Validate and Ship
 
-Strive for pixel-perfect visual parity with the original design or reference.
+Strive for pixel-perfect visual parity with the original design. Before marking complete:
 
-**Guidelines:**
-- Prioritize fidelity to the source (Figma design or playground)
-- Avoid hardcoded values. Use design tokens where available
-- When conflicts arise between the project's design system tokens and generated values, prefer design system tokens but adjust spacing or sizes minimally to match visuals
-- Follow WCAG requirements for accessibility
-- For `codegen-figma_to_code` results, compare your implementation against the snapshot screenshots
-
-### Step B6: Validate
-
-Before marking complete, validate the final implementation.
-
-**Validation checklist:**
 - [ ] Layout matches design (spacing, alignment, sizing)
 - [ ] Colors match exactly (use CSS variables from generated code)
 - [ ] Typography matches (font, size, weight, line height)
 - [ ] Interactive states work as designed (hover, active, disabled)
-- [ ] Assets render correctly
+- [ ] Assets render correctly (download from returned URLs, use SVG for icons)
 - [ ] Responsive behavior follows design constraints
-- [ ] Code follows project conventions
+- [ ] Code follows project conventions (naming, file structure, linting)
 - [ ] Accessibility standards met
-
----
-
-## Implementation Rules
-
-### Component Organization
-- Place components in the project's designated component directory
-- Follow the project's component naming conventions
-- Avoid inline styles unless truly necessary for dynamic values
-- Group related components together (e.g., a card and its subcomponents)
-
-### Design System Integration
-- ALWAYS use components from the project's design system when possible
-- Map generated design tokens to project design tokens
-- When a matching component exists, extend it rather than creating a new one
-- Document any new components added to the design system
-
-### Code Quality
-- Avoid hardcoded values. Extract to constants or design tokens
-- Keep components composable and reusable
-- Add TypeScript types for component props when the project uses TypeScript
-- Follow the project's linting and formatting rules
-
-### Asset Handling
-- Download all assets from URLs returned by Anima MCP tools
-- Place assets at the `assetsBaseUrl` path specified in the tool call
-- Use appropriate formats (SVG for icons, optimized images for photos)
-- Do not use placeholder images when real assets are provided
+- [ ] When design system tokens conflict with generated values, prefer tokens but adjust minimally to match visuals
+- [ ] Use existing design system components where possible. Extend rather than duplicate.
 
 ---
 
