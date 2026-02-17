@@ -61,11 +61,20 @@ Anima's `playground-create` tool generates full applications from scratch. This 
 
 ## Setup
 
-If any MCP call fails because Anima MCP is not connected, pause and set it up.
+Before attempting any Anima MCP call, verify the connection is already working:
 
-**Interactive environments** (Claude Code, Cursor, Codex): The user authenticates via browser OAuth. Add the Anima MCP server, then authenticate when prompted. No API key needed.
+**Interactive environments** (Claude Code, Cursor, Codex): Try calling any Anima MCP tool (e.g., list tools). If it responds, you're connected — skip setup. If it fails, add the Anima MCP server and authenticate via browser OAuth.
 
-**Headless environments** (OpenClaw, Slackbots etc, server-side agents): Use an API key. The user generates one from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com). Pass it as a Bearer token in the `Authorization` header.
+**Headless environments** (OpenClaw, mcporter): Run a health check first:
+```bash
+npx mcporter list anima-mcp --schema --output json
+```
+If this returns a tool list, the connection is healthy — proceed to create. If it errors, set up authentication:
+1. The user generates an API key from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com)
+2. Configure mcporter with the key (see [references/setup.md](references/setup.md))
+3. Re-run the health check to confirm
+
+**Only go through setup if the health check fails.** Don't ask users to re-authenticate if it's already working.
 
 See [references/setup.md](references/setup.md) for full step-by-step instructions for each environment.
 
@@ -187,7 +196,7 @@ playground-create(
   prompt: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
   framework: "react",
   styling: "tailwind",
-  guidelines: "Use shadcn components, dark mode"
+  guidelines: "Dark mode, accessible contrast ratios"
 )
 ```
 
@@ -198,7 +207,7 @@ npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
   "prompt": "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
   "framework": "react",
   "styling": "tailwind",
-  "guidelines": "Use shadcn components, dark mode"
+  "guidelines": "Dark mode, accessible contrast ratios"
 }' --output json
 ```
 
@@ -346,18 +355,16 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
    }' --output json
    ```
 
-4. **Take a full-page screenshot** of each published live URL using any screenshotting method or use ScreenshotOne look if it has installed as a tool with these parameters (animated websites with scroll animations are more challenging to screenshot properly)
-   ```bash
-   curl -sL -o screenshot.png "https://api.screenshotone.com/take?url=<live-url>&access_key=$SCREENSHOT_ONE_ACCESS_KEY&full_page=true&delay=5&viewport_width=1280&format=png"
-   ```
-   - `full_page=true` captures the entire scrollable page
-   - `delay=5` waits 5 seconds for React/JS to render before capture. For heavier SPAs, use `delay=8` or `delay=10`
-   - Returns proper PNG images, renders SPAs correctly
-   - Free tier: 100 screenshots/month
-   - Send screenshots to the user via the message tool with `filePath`
-   - Run multiple screenshots in parallel with `&` and `wait`
+4. **Take a full-page screenshot** of each published live URL if you have any web screenshot capability. Options include:
+   - **Browser automation** (Puppeteer, Playwright, browser MCP tools) — navigate to the URL and capture
+   - **Screenshot APIs** (ScreenshotOne, Screenshotly, urlbox, etc.) — HTTP call to capture the page
+   - **Any other screenshot tool** available in your environment
 
-5. **Return all 3 screenshots** with their live URLs so the user can pick a favorite or ask for refinements.
+   Tips for good captures: wait 5-10 seconds for React/JS to render before capture; use full-page mode; viewport width 1280px works well. Animated sites with scroll animations are harder to capture as static images.
+
+   If no screenshot tool is available, skip this step — just return the live URLs. The user can view them directly.
+
+5. **Return all 3 live URLs** (and screenshots if captured) so the user can pick a favorite or ask for refinements.
 
 **Timing:** All 3 variants generate in parallel, so total wall time is roughly the same as one (~5-7 minutes creation + 1-3 minutes publishing). Expect results within ~10 minutes.
 
