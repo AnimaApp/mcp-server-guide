@@ -1,41 +1,25 @@
 # Setup: Anima MCP Connection
 
-If any MCP call fails because Anima MCP is not connected, pause and set it up. There are two authentication approaches depending on your environment:
+If any Anima MCP call fails, pause and set up the connection. There are two authentication approaches depending on your environment.
 
-**Interactive environments** (user is present, browser available) use OAuth - the user authenticates via browser during setup. This is the standard flow for coding agents like Claude Code, Cursor, or Codex.
+## Interactive environments (Claude Code, Cursor, Codex, etc.)
 
-**Headless environments** (no browser, running autonomously) use an API token. This is the standard flow for OpenClaw, CI/CD pipelines, or any server-side agent.
+These editors support browser-based OAuth. Add the Anima MCP server using your editor's MCP configuration, pointing to:
 
-## Interactive Setup (Claude Code, Cursor, Codex, etc.)
+**Server URL:** `https://public-api.animaapp.com/v1/mcp`
+**Transport:** HTTP
 
-**Claude Code:**
-```bash
-claude mcp add --transport http anima https://public-api.animaapp.com/v1/mcp
-```
-Then enter `/mcp`, select Anima, and authenticate in the browser.
+When prompted, authenticate in the browser with your Anima account. Optionally connect your Figma account during authentication to enable Figma flows.
 
-**OpenAI Codex:**
-```bash
-codex mcp add anima --url https://public-api.animaapp.com/v1/mcp
-```
-Then run `codex mcp login anima`.
+Each editor has its own way to add MCP servers. Check your editor's MCP documentation for the specific steps.
 
-**Cursor / other MCP clients:**
-Add to your `mcp.json`:
-```json
-{
-  "mcpServers": {
-    "anima": {
-      "url": "https://public-api.animaapp.com/v1/mcp"
-    }
-  }
-}
-```
-Click "Connect" next to Anima in MCP settings. (Optional) Connect your Figma account during authentication to enable Figma URL flows.
+## Headless environments (OpenClaw, server-side agents)
 
-## Headless Setup (OpenClaw and server-side agents)
+These environments use an API token instead of browser login. Your MCP client handles the connection. You just need to provide:
 
-Uses `mcporter` CLI with an API token. No browser required.
+**Server URL:** `https://public-api.animaapp.com/v1/mcp`
+**Transport:** HTTP
+**Authorization:** Bearer token using your Anima API key
 
 ### Getting your API key
 
@@ -45,24 +29,8 @@ Uses `mcporter` CLI with an API token. No browser required.
 4. Choose an expiration period and click **Generate API Key**
 5. Copy the key and store it securely. You won't be able to see it again.
 
-### Connecting with the API key
+### Connecting
 
-1. Set the Anima API key as an environment variable (e.g., `ANIMA_API_TOKEN`).
-2. Add the Anima MCP server to mcporter config:
-   ```bash
-   npx mcporter config add anima-mcp \
-     --url https://public-api.animaapp.com/v1/mcp \
-     --transport http \
-     --header "Authorization=Bearer $ANIMA_API_TOKEN"
-   ```
-3. Verify the connection:
-   ```bash
-   npx mcporter list anima-mcp --schema --output json
-   ```
+Configure your MCP client (mcporter, MCP Port, or any MCP-compatible tool) with the server URL above and pass the API key as a Bearer token in the Authorization header. Refer to your MCP client's documentation for specific configuration steps.
 
-All subsequent MCP calls use mcporter:
-```bash
-npx mcporter call anima-mcp.<tool-name> --timeout 600000 --args '<JSON>' --output json
-```
-
-**Critical for OpenClaw:** Always pass `--timeout 600000` (10 minutes) on every mcporter call. The default 60-second timeout is too short for playground generation.
+**Important:** Set your MCP client's timeout to at least 10 minutes (600000ms). Playground generation builds full applications and typically takes 3-7 minutes. Default timeouts will fail.
