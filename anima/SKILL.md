@@ -1,9 +1,9 @@
 ---
 name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
-compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires mcporter CLI (via npx) and an ANIMA_API_TOKEN."
+compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"bins":["npx"],"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0"}
 ---
 
 # Design and Build with Anima
@@ -46,7 +46,7 @@ Pull design elements and experiences from Anima into your existing project. Use 
 - Anima MCP server must be connected and accessible (see [Setup](references/setup.md))
 - User must have an Anima account (free tier available)
 - For Figma flows: Figma account must be connected during Anima authentication
-- For OpenClaw/headless environments: mcp access like `mcporter` CLI (installed via npm/npx) and an Anima API token
+- For headless environments: an Anima API token (see [Setup](references/setup.md))
 
 ## Important: Timeouts
 
@@ -65,16 +65,7 @@ Before attempting any Anima MCP call, verify the connection is already working:
 
 **Interactive environments** (Claude Code, Cursor, Codex): Try calling any Anima MCP tool (e.g., list tools). If it responds, you're connected — skip setup. If it fails, add the Anima MCP server and authenticate via browser OAuth.
 
-**Headless environments** (OpenClaw, mcporter): Run a health check first:
-```bash
-npx mcporter list anima-mcp --schema --output json
-```
-If this returns a tool list, the connection is healthy — proceed to create. If it errors, set up authentication:
-1. The user generates an API key from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com)
-2. Configure mcporter with the key (see [references/setup.md](references/setup.md))
-3. Re-run the health check to confirm
-
-**Only go through setup if the health check fails.** Don't ask users to re-authenticate if it's already working.
+**Headless environments** (OpenClaw, server-side agents): Try calling any Anima MCP tool. If it responds, you're connected. If it fails, the user needs to generate an API key from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com) and configure it in their environment.
 
 See [references/setup.md](references/setup.md) for full step-by-step instructions for each environment.
 
@@ -189,7 +180,6 @@ Two sub-cases:
 
 Describe what you want in plain language. Anima designs and generates a complete playground with brand-aware visuals.
 
-**Interactive:**
 ```
 playground-create(
   type: "p2c",
@@ -198,17 +188,6 @@ playground-create(
   styling: "tailwind",
   guidelines: "Dark mode, accessible contrast ratios"
 )
-```
-
-**OpenClaw (mcporter):**
-```bash
-npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
-  "type": "p2c",
-  "prompt": "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
-  "framework": "react",
-  "styling": "tailwind",
-  "guidelines": "Dark mode, accessible contrast ratios"
-}' --output json
 ```
 
 **Parameters specific to p2c:**
@@ -292,20 +271,11 @@ After creating a playground, deploy it to a live URL or publish as an npm packag
 
 #### Publish as Web App
 
-**Interactive:**
 ```
 playground-publish(
   sessionId: "abc123xyz",
   mode: "webapp"
 )
-```
-
-**OpenClaw (mcporter):**
-```bash
-npx mcporter call anima-mcp.playground-publish --timeout 600000 --args '{
-  "sessionId": "abc123xyz",
-  "mode": "webapp"
-}' --output json
 ```
 
 **Returns:** `{ success, liveUrl, subdomain }`
@@ -336,24 +306,9 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
    - Variant 2: A more creative or opinionated take
    - Variant 3: A different visual style or layout approach
 
-2. **Launch all 3 playground-create calls in parallel** (one per variant):
-   ```bash
-   # Repeat for each variant prompt, all running simultaneously
-   npx mcporter call anima-mcp.playground-create --timeout 600000 --args '{
-     "type": "p2c",
-     "prompt": "<variant-prompt>",
-     "framework": "react",
-     "styling": "tailwind"
-   }' --output json &
-   ```
+2. **Launch all 3 `playground-create` calls in parallel** (one per variant, type p2c)
 
-3. **As each one completes**, immediately publish it:
-   ```bash
-   npx mcporter call anima-mcp.playground-publish --timeout 600000 --args '{
-     "sessionId": "<returned-session-id>",
-     "mode": "webapp"
-   }' --output json
-   ```
+3. **As each one completes**, immediately call `playground-publish` (mode webapp)
 
 4. **Take a full-page screenshot** of each published live URL if you have any web screenshot capability. Options include:
    - **Browser automation** (Puppeteer, Playwright, browser MCP tools) — navigate to the URL and capture
