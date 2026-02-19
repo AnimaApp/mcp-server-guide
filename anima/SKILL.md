@@ -3,7 +3,7 @@ name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
 compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.5"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.6"}
 ---
 
 # Design and Build with Anima
@@ -332,27 +332,19 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
 | Figma URL + wants code in their project | Figma to Code | `codegen-figma_to_code` |
 | Anima Playground URL + wants code locally | Download | `project-download_from_playground` |
 
-### Step B2: Detect Project Context
+### Step B2: Match Project Stack to Tool Parameters
 
-**Check these files:**
-- `package.json` for framework (React, Vue), styling (Tailwind), and UI libraries (MUI, Ant Design, shadcn)
-- `tsconfig.json` for TypeScript usage
-- Existing component files for naming conventions and file structure
-- Existing styles for CSS approach (modules, plain CSS, Tailwind utilities)
-
-**Map detected stack to tool parameters:**
-
-| Detected | Parameter | Value |
+| Project stack | Parameter | Value |
 |---|---|---|
-| React in dependencies | `framework` | `"react"` |
+| React | `framework` | `"react"` |
 | No React | `framework` | `"html"` |
-| Tailwind in dependencies | `styling` | `"tailwind"` |
-| CSS Modules (*.module.css) | `styling` | `"css_modules"` |
-| Plain CSS files | `styling` | `"plain_css"` |
-| TypeScript config present | `language` | `"typescript"` |
-| MUI in dependencies | `uiLibrary` | `"mui"` |
-| Ant Design in dependencies | `uiLibrary` | `"antd"` |
-| shadcn components present | `uiLibrary` | `"shadcn"` |
+| Tailwind | `styling` | `"tailwind"` |
+| CSS Modules | `styling` | `"css_modules"` |
+| Plain CSS | `styling` | `"plain_css"` |
+| TypeScript | `language` | `"typescript"` |
+| MUI | `uiLibrary` | `"mui"` |
+| Ant Design | `uiLibrary` | `"antd"` |
+| shadcn | `uiLibrary` | `"shadcn"` |
 
 ### Step B3: Generate Code
 
@@ -400,7 +392,7 @@ project-download_from_playground(
 )
 ```
 
-**Returns:** Pre-signed download URL for a zip file (valid for 10 minutes). Download the zip, extract it, and adapt the code to the user's project conventions.
+**Returns:** Pre-signed URL for the project files (valid for 10 minutes). Adapt the code to the user's project conventions.
 
 **Important:** Treat Anima output as a representation of design and behavior, not as final code style. Adapt it to your project's conventions, components, and design tokens.
 
