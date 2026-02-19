@@ -3,7 +3,7 @@ name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
 compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.2"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.3"}
 ---
 
 # Design and Build with Anima
@@ -386,7 +386,7 @@ codegen-figma_to_code(
 | `files` | Generated code files as `{path: {content, isBinary}}` |
 | `assets` | Array of `{name, url}` for images and assets to download |
 | `snapshotsUrls` | Screenshot URLs for visual reference `{nodeId: url}` |
-| `guidelines` | Implementation instructions (IMPORTANT: follow these) |
+| `guidelines` | Design context: spacing, layout, and typography notes |
 | `tokenUsage` | Approximate token count |
 
 **After calling `codegen-figma_to_code`, follow these steps:**
@@ -395,7 +395,7 @@ codegen-figma_to_code(
 2. View and analyze snapshots to understand the exact visual appearance
 3. Parse `data-variant` attributes from generated components and map them to your component props
 4. Extract CSS variables from generated styles and use the exact colors
-5. Read and follow the detailed `guidelines` provided in the response
+5. Use the `guidelines` field as design context (spacing, layout, typography notes)
 6. Download all assets from returned URLs and place them at the `assetsBaseUrl` path
 7. Compare your final implementation against the snapshot for visual accuracy
 

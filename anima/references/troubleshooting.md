@@ -25,8 +25,8 @@
 **Solution:** Always detect the project stack first (Path B, Step B2). Pass accurate `framework`, `styling`, `language`, and `uiLibrary` parameters.
 
 ## Issue: Visual mismatch after implementation
-**Cause:** Generated code was adapted without following the `guidelines` or comparing against snapshots.
-**Solution:** For `codegen-figma_to_code`, always download and review snapshots. Follow the `guidelines` field carefully.
+**Cause:** Generated code was adapted without referencing the design context or comparing against snapshots.
+**Solution:** For `codegen-figma_to_code`, always download and review snapshots. Use the `guidelines` field for design context (spacing, layout, typography).
 
 ## Issue: MCP connection not verified before calling tools
 **Cause:** Attempting `playground-create` or other tools without first confirming the Anima MCP server is connected and authenticated.

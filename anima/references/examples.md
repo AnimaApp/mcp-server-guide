@@ -49,7 +49,7 @@ User says: "Implement this Figma component: https://figma.com/design/kL9xQn2VwM8
 1. Parse URL: fileKey=`kL9xQn2VwM8pYrTb4ZcHjF`, nodeId=`42:15` (convert `-` to `:`)
 2. Detect project stack: React + CSS Modules + TypeScript + MUI
 3. Call `codegen-figma_to_code(fileKey="kL9xQn2VwM8pYrTb4ZcHjF", nodesId=["42:15"], framework="react", styling="css_modules", language="typescript", uiLibrary="mui", assetsBaseUrl="./assets")`
-4. Download snapshots and assets, follow `guidelines` from the response, implement into project
+4. Download snapshots and assets, use `guidelines` for design context, implement into project
 
 **Result:** Component matching the Figma design, using MUI and CSS Modules.
 
