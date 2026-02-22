@@ -3,7 +3,7 @@ name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
 compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.8"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.9"}
 ---
 
 # Design and Build with Anima
@@ -43,10 +43,10 @@ Pull design elements and experiences from Anima into your existing project. Use 
 
 ## Prerequisites
 
-- Anima MCP server must be connected and accessible (see [Setup](references/setup.md))
+- Anima MCP server must be connected and accessible
 - User must have an Anima account (free tier available)
 - For Figma flows: Figma account must be connected during Anima authentication
-- For headless environments: an Anima API token (see [Setup](references/setup.md))
+- For headless environments: an Anima API token
 
 ## Important: Timeouts
 
@@ -61,13 +61,7 @@ Anima's `playground-create` tool generates full applications from scratch. This 
 
 ## Setup
 
-Before attempting any Anima MCP call, verify the connection is already working:
-
-**Interactive environments** (Claude Code, Cursor, Codex): Try calling any Anima MCP tool (e.g., list tools). If it responds, you're connected — skip setup. If it fails, add the Anima MCP server and authenticate via browser OAuth.
-
-**Headless environments** (OpenClaw, server-side agents): Try calling any Anima MCP tool. If it responds, you're connected. If it fails, the user needs to generate an API key from **Anima Settings → API Keys** at [dev.animaapp.com](https://dev.animaapp.com) and configure it in their environment.
-
-See [references/setup.md](references/setup.md) for full step-by-step instructions for each environment.
+Before attempting any Anima MCP call, verify the connection is already working. Try calling any Anima MCP tool. If it responds, you're connected. If it fails, the user needs to set up authentication. See the [setup guide](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/setup.md) for details.
 
 ---
 
@@ -199,8 +193,6 @@ playground-create(
 
 **Styling options:** `tailwind`, `css`, `inline_styles`
 
-**Returns:** `{ success, sessionId, playgroundUrl }`
-
 #### Link to Code (l2c)
 
 Provide a website URL. Anima recreates it as an editable playground with production-ready code.
@@ -227,8 +219,6 @@ playground-create(
 **UI Library options:** `shadcn` only
 
 **Language:** Always `typescript` for l2c
-
-**Returns:** `{ success, sessionId, playgroundUrl }`
 
 #### Figma to Playground (f2c)
 
@@ -263,8 +253,6 @@ playground-create(
 
 **UI Library options:** `mui`, `antd`, `shadcn`, `clean_react`
 
-**Returns:** `{ success, sessionId, playgroundUrl }`
-
 ### Step A3: Publish
 
 After creating a playground, deploy it to a live URL or publish as an npm package.
@@ -278,9 +266,7 @@ playground-publish(
 )
 ```
 
-**Returns:** `{ success, liveUrl, subdomain }`
-
-The app becomes available at a URL like `https://winter-sun-2691.dev.animaapp.io`.
+The response includes the live URL for the published app.
 
 #### Publish as Design System (npm package)
 
@@ -292,8 +278,6 @@ playground-publish(
   packageVersion: "1.0.0"
 )
 ```
-
-**Returns:** `{ success, packageUrl, packageName, packageVersion }`
 
 ### Explore Mode: Parallel Variants
 
@@ -362,47 +346,16 @@ codegen-figma_to_code(
 )
 ```
 
-**Returns:**
+Use the response fields (snapshots, assets, guidelines) as design reference when implementing.
 
-| Field | Description |
-|---|---|
-| `files` | Generated code files as `{path: {content, isBinary}}` |
-| `assets` | Array of `{name, url}` for images and assets |
-| `snapshotsUrls` | Visual reference images `{nodeId: url}` |
-| `guidelines` | Design context: spacing, layout, and typography notes |
-| `tokenUsage` | Approximate token count |
-
-**After receiving the response:**
-
-1. Review `snapshotsUrls` to understand the exact visual appearance
-2. Map `data-variant` attributes from generated components to your component props
-3. Use CSS variables from generated styles for exact colors
-4. Use the `guidelines` field as design context (spacing, layout, typography notes)
-5. Place assets at the `assetsBaseUrl` path
-6. Compare your implementation against the snapshots for visual accuracy
-
-#### Download from Playground
-
-Pull code from an existing Anima Playground into a local project.
-
-```
-project-download_from_playground(
-  playgroundUrl: "https://dev.animaapp.com/chat/abc123xyz"
-)
-```
-
-**Returns:** Pre-signed URL for the project files (valid for 10 minutes). Adapt the code to the user's project conventions.
-
-**Important:** Treat Anima output as a representation of design and behavior, not as final code style. Adapt it to your project's conventions, components, and design tokens.
+You can also use `project-download_from_playground` to pull code from an existing Anima Playground into your project.
 
 ---
 
 ## Additional References
 
-- **[Setup guide](references/setup.md):** MCP connection setup for interactive and headless environments
-- **[MCP Tools Reference](references/mcp-tools.md):** Full parameter tables for all Anima MCP tools
-- **[Examples](references/examples.md):** End-to-end walkthroughs for common scenarios
-- **[Troubleshooting](references/troubleshooting.md):** Common issues and solutions
+- [Setup guide](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/setup.md)
+- [MCP Tools Reference](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/mcp-tools.md)
+- [Examples](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/examples.md)
+- [Troubleshooting](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/troubleshooting.md)
 - [Anima MCP Documentation](https://docs.animaapp.com/docs/integrations/anima-mcp)
-- [Anima Playground](https://dev.animaapp.com)
-- [Enterprise Design System Setup](https://anima-forms.typeform.com/to/gDr77Woe)
