@@ -62,6 +62,32 @@ Use these commands to manage servers:
 
 For more information, see [Anthropic's official documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/tutorials#set-up-model-context-protocol-mcp).
 
+#### OpenAI Codex
+
+1. Open your terminal and run:
+
+```bash
+codex mcp add anima --url https://public-api.animaapp.com/v1/mcp
+```
+
+Or add it directly to your `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.anima]
+url = "https://public-api.animaapp.com/v1/mcp"
+```
+
+2. Restart Codex
+3. Authenticate when prompted
+
+To install the Anima skill (recommended):
+
+```bash
+codex skill install AnimaApp/mcp-server-guide/skills/anima
+```
+
+For more information, see [OpenAI's Codex MCP documentation](https://developers.openai.com/codex/mcp).
+
 #### VS Code
 
 1. Use the shortcut `Cmd Shift P` (Mac) or `Ctrl Shift P` (Windows) to search for `MCP:Add Server`
