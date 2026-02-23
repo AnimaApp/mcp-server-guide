@@ -18,6 +18,18 @@ For the complete set of Anima MCP server docs, see our [help documentation](http
 
   Reference your team's design system directly when implementing features. The AI pulls your design system docs and builds using your team's established components and patterns.
 
+## Quick start: Claude Code plugin
+
+```
+/plugin marketplace add AnimaApp/mcp-server-guide
+/plugin install anima@anima
+```
+
+This auto-configures the Anima MCP server and installs the Anima skill.
+After installing, authenticate when prompted. That's it.
+
+For other editors (VS Code, Cursor), see the manual setup below.
+
 ## Installation & Setup
 
 ### Requirements

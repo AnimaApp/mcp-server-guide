@@ -1,0 +1,14 @@
+{
+  "name": "anima",
+  "owner": {
+    "name": "Anima",
+    "email": "support@animaapp.com"
+  },
+  "plugins": [
+    {
+      "name": "anima",
+      "source": ".",
+      "description": "Build apps, clone websites, implement Figma designs, and deploy to live URLs through Anima Playground."
+    }
+  ]
+}

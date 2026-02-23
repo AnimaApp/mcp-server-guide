@@ -1,0 +1,8 @@
+{
+  "name": "anima",
+  "description": "Build apps, clone websites, implement Figma designs, and deploy to live URLs through Anima Playground.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Anima"
+  }
+}
