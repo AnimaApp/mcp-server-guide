@@ -5,7 +5,7 @@ mcpServers:
   - anima
 compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"author":"animaapp","version":"1.0.9"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.9"}
 ---
 
 # Design and Build with Anima
