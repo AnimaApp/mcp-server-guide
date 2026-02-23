@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "anima",
-      "source": ".",
+      "source": "./",
       "description": "Build apps, clone websites, implement Figma designs, and deploy to live URLs through Anima Playground."
     }
   ]
