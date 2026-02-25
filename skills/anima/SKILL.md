@@ -99,6 +99,8 @@ export FIGMA_TOKEN=<token>
 
 **Do NOT** try to pass tokens inline, construct auth headers manually, or write credentials files yourself. Always use `npx @animaapp/cli auth --token` or environment variables.
 
+**Troubleshooting:** If `npx` returns `ENOTFOUND`, `ENETUNREACH`, or other network errors, the sandbox/environment may not have network access enabled. Re-run the command with network-enabled permissions, then continue with the auth flow.
+
 The CLI outputs JSON when piped (for AI tools) and pretty text in terminals. All commands support `--json`, `--verbose`, and `--timeout`.
 
 ---
