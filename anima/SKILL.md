@@ -71,17 +71,33 @@ Before attempting any Anima MCP call, verify the connection is already working. 
 
 ### Option 2: CLI (recommended for shell-based agents)
 
-No MCP setup needed. Just `npx` and a token:
+No MCP setup needed. Just `npx` and a token.
 
+**IMPORTANT: Before running any CLI command, you MUST set up authentication first.** Without auth, all commands will fail.
+
+**Step 1 — Check if auth is already configured:**
 ```bash
-# One-time auth setup
-npx @animaapp/cli auth --token <anima-token>
-npx @animaapp/cli auth --figma-token <figma-token>   # only needed for Figma flows
+npx @animaapp/cli auth --status
+```
 
-# Or use environment variables
+**Step 2 — If not configured, ask the user for their Anima API token**, then run:
+```bash
+npx @animaapp/cli auth --token <anima-token>
+```
+The token is stored at `~/.config/anima/credentials.json` and persists across sessions. The user gets their token from https://dev.animaapp.com > Settings > API Keys.
+
+**Step 3 (only for Figma flows) — Store Figma token:**
+```bash
+npx @animaapp/cli auth --figma-token <figma-token>
+```
+
+**Alternative:** Set environment variables instead of using the auth command:
+```bash
 export ANIMA_API_TOKEN=<token>
 export FIGMA_TOKEN=<token>
 ```
+
+**Do NOT** try to pass tokens inline, construct auth headers manually, or write credentials files yourself. Always use `npx @animaapp/cli auth --token` or environment variables.
 
 The CLI outputs JSON when piped (for AI tools) and pretty text in terminals. All commands support `--json`, `--verbose`, and `--timeout`.
 
