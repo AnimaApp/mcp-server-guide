@@ -3,9 +3,9 @@ name: anima
 description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
 mcpServers:
   - anima
-compatibility: "Requires Anima MCP server connection (HTTP transport). For headless environments, requires an ANIMA_API_TOKEN."
+compatibility: "Works via MCP server (HTTP transport) or CLI (`npx @animaapp/cli`). For headless environments, requires an ANIMA_API_TOKEN."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.0.9"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"1.1.0"}
 ---
 
 # Design and Build with Anima
@@ -45,9 +45,9 @@ Pull design elements and experiences from Anima into your existing project. Use 
 
 ## Prerequisites
 
-- Anima MCP server must be connected and accessible
+- Anima MCP server must be connected and accessible — **OR** use the CLI (`npx @animaapp/cli`)
 - User must have an Anima account (free tier available)
-- For Figma flows: Figma account must be connected during Anima authentication
+- For Figma flows: Figma personal access token (stored via `auth --figma-token` or connected during Anima authentication)
 - For headless environments: an Anima API token
 
 ## Important: Timeouts
@@ -59,11 +59,31 @@ Anima's `playground-create` tool generates full applications from scratch. This 
 - **f2c (Figma to code):** Typically 2-5 minutes
 - **playground-publish:** Typically 1-3 minutes
 
-**Always use a 10-minute timeout** (600000ms) for `playground-create` and `playground-publish` calls. Default timeouts will fail.
+**Always use a 10-minute timeout** (600000ms) for `playground-create`, `playground-publish`, and CLI calls. Default timeouts will fail.
 
 ## Setup
 
+There are **two ways** to use Anima:
+
+### Option 1: MCP Server (recommended for MCP-capable agents)
+
 Before attempting any Anima MCP call, verify the connection is already working. Try calling any Anima MCP tool. If it responds, you're connected. If it fails, the user needs to set up authentication. See the [setup guide](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/setup.md) for details.
+
+### Option 2: CLI (recommended for shell-based agents)
+
+No MCP setup needed. Just `npx` and a token:
+
+```bash
+# One-time auth setup
+npx @animaapp/cli auth --token <anima-token>
+npx @animaapp/cli auth --figma-token <figma-token>   # only needed for Figma flows
+
+# Or use environment variables
+export ANIMA_API_TOKEN=<token>
+export FIGMA_TOKEN=<token>
+```
+
+The CLI outputs JSON when piped (for AI tools) and pretty text in terminals. All commands support `--json`, `--verbose`, and `--timeout`.
 
 ---
 
@@ -176,6 +196,7 @@ Two sub-cases:
 
 Describe what you want in plain language. Anima designs and generates a complete playground with brand-aware visuals.
 
+**MCP:**
 ```
 playground-create(
   type: "p2c",
@@ -185,6 +206,13 @@ playground-create(
   guidelines: "Dark mode, accessible contrast ratios"
 )
 ```
+
+**CLI:**
+```bash
+npx @animaapp/cli create -t p2c -p "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable." --guidelines "Dark mode, accessible contrast ratios"
+```
+
+Only `-t` and `-p` are required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
 
 **Parameters specific to p2c:**
 
@@ -199,6 +227,7 @@ playground-create(
 
 Provide a website URL. Anima recreates it as an editable playground with production-ready code.
 
+**MCP:**
 ```
 playground-create(
   type: "l2c",
@@ -209,6 +238,13 @@ playground-create(
   uiLibrary: "shadcn"
 )
 ```
+
+**CLI:**
+```bash
+npx @animaapp/cli create -t l2c -u https://stripe.com/payments --ui-library shadcn
+```
+
+Only `-t` and `-u` are required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
 
 **Parameters specific to l2c:**
 
@@ -232,6 +268,7 @@ Provide a Figma URL. Anima implements the design into a full playground you can 
 - **File key:** The segment after `/design/` (e.g., `kL9xQn2VwM8pYrTb4ZcHjF`)
 - **Node ID:** The `node-id` query parameter value, replacing `-` with `:` (e.g., `42-15` becomes `42:15`)
 
+**MCP:**
 ```
 playground-create(
   type: "f2c",
@@ -243,6 +280,13 @@ playground-create(
   uiLibrary: "shadcn"
 )
 ```
+
+**CLI** (accepts full Figma URL — extracts file key and node IDs automatically):
+```bash
+npx @animaapp/cli create -t f2c --file-key "https://figma.com/design/kL9xQn2VwM8pYrTb4ZcHjF/My-File?node-id=42-15" --ui-library shadcn
+```
+
+Only `-t` and `--file-key` are required. The CLI parses Figma URLs and normalizes node IDs automatically. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
 
 **Parameters specific to f2c:**
 
@@ -261,6 +305,7 @@ After creating a playground, deploy it to a live URL or publish as an npm packag
 
 #### Publish as Web App
 
+**MCP:**
 ```
 playground-publish(
   sessionId: "abc123xyz",
@@ -268,10 +313,16 @@ playground-publish(
 )
 ```
 
+**CLI:**
+```bash
+npx @animaapp/cli publish abc123xyz
+```
+
 The response includes the live URL for the published app.
 
 #### Publish as Design System (npm package)
 
+**MCP:**
 ```
 playground-publish(
   sessionId: "abc123xyz",
@@ -279,6 +330,11 @@ playground-publish(
   packageName: "@myorg/design-system",
   packageVersion: "1.0.0"
 )
+```
+
+**CLI:**
+```bash
+npx @animaapp/cli publish abc123xyz --mode designSystem --package-name @myorg/design-system
 ```
 
 ### Explore Mode: Parallel Variants
@@ -336,6 +392,7 @@ This is Path A's secret weapon. When a user says "build me X" or "prototype X", 
 
 #### Figma to Code (direct implementation)
 
+**MCP:**
 ```
 codegen-figma_to_code(
   fileKey: "kL9xQn2VwM8pYrTb4ZcHjF",
@@ -348,9 +405,47 @@ codegen-figma_to_code(
 )
 ```
 
+**CLI** (writes files directly to disk):
+```bash
+npx @animaapp/cli codegen --file-key "https://figma.com/design/kL9xQn2VwM8pYrTb4ZcHjF/My-File?node-id=42-15" -o ./components --ui-library shadcn
+```
+
+Only `--file-key` is required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`, `-o ./anima-codegen-output`.
+
 Use the response fields (snapshots, assets, guidelines) as design reference when implementing.
 
-You can also use `project-download_from_playground` to pull code from an existing Anima Playground into your project.
+#### Download Playground to Local Files
+
+**MCP:**
+```
+project-download_from_playground(sessionId: "abc123xyz")
+```
+
+**CLI:**
+```bash
+npx @animaapp/cli download https://dev.animaapp.com/chat/abc123xyz -o ./my-project
+```
+
+The CLI accepts playground URLs directly and extracts the session ID automatically.
+
+---
+
+## MCP vs CLI Quick Reference
+
+| Action | MCP Tool | CLI Command |
+|--------|----------|-------------|
+| Prompt to Code | `playground-create` type="p2c" | `npx @animaapp/cli create -t p2c -p "..."` |
+| Link to Code | `playground-create` type="l2c" | `npx @animaapp/cli create -t l2c -u <url>` |
+| Figma to Playground | `playground-create` type="f2c" | `npx @animaapp/cli create -t f2c --file-key <key>` |
+| Publish | `playground-publish` | `npx @animaapp/cli publish <sessionId>` |
+| Figma to Code | `codegen-figma_to_code` | `npx @animaapp/cli codegen --file-key <key> -o ./out` |
+| Download | `project-download_from_playground` | `npx @animaapp/cli download <url> -o ./out` |
+
+**When to use MCP vs CLI:**
+- **MCP**: Agent has MCP support and Anima server is connected
+- **CLI**: Agent can run shell commands, no MCP setup needed, headless environments
+
+**CLI defaults** (all optional): `--framework react`, `--styling tailwind`, `--language typescript` (when react). Only the type flag and the type-specific input (prompt, url, or file-key) are required.
 
 ---
 
