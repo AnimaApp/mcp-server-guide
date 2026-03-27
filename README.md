@@ -21,7 +21,8 @@ For the complete set of Anima MCP server docs, see our [help documentation](http
 ## Quick start: Claude Code plugin
 
 ```
-/plugin install anima@claude-plugins-official
+/plugin marketplace add AnimaApp/mcp-server-guide
+/plugin install anima@mcp-server-guide
 ```
 
 This installs the Anima plugin, which auto-configures the MCP server and adds the Anima skill. Authenticate when prompted. That's it.
