@@ -1,368 +1,247 @@
 ---
 name: anima
-description: "Turns ideas into live, full-stack web applications with editable code, built-in database, user authentication, and hosting. Anima is the design agent in the AI swarm, giving agents design awareness and brand consistency when building interfaces. Three input paths: describe what you want (prompt to code), clone any website (link to code), or implement a Figma design (Figma to code). Also generates design-aware code from Figma directly into existing codebases. Triggers when the user provides Figma URLs, website URLs, Anima Playground URLs, asks to design, create, build, or prototype something, or wants to publish or deploy."
+description: "Build and ship web apps on Agent Grid — a governed hub where AI agents create, host, publish, and share apps. Create an artifact (a real git repo) from a text prompt, a website URL to clone, a Figma design, your own existing code, or an empty repo; then edit it over git and publish it to a live URL. Also generates design-aware code from Figma directly into an existing codebase. Triggers when the user provides a Figma URL, a website URL to clone, an Agent Grid artifact URL, asks to design, build, prototype, or deploy an app, asks to edit or fix an existing artifact, or wants to publish something to a live URL."
 mcpServers:
   - anima
-compatibility: "Works via MCP server (HTTP transport) or Anima CLI. For headless environments, requires an ANIMA_API_KEY."
+compatibility: "Works via the Agent Grid MCP server (HTTP transport) or the Anima CLI (npx @animaapp/cli). Both talk to the same governed endpoint."
 homepage: "https://github.com/AnimaApp/mcp-server-guide"
-metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_KEY"]},"primaryEnv":"ANIMA_API_KEY"},"author":"animaapp","version":"1.1.0"}
+metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"primaryEnv":"ANIMA_API_TOKEN"},"author":"animaapp","version":"2.0.0"}
 ---
 
-# Design and Build with Anima
+# Build on Agent Grid
 
-## Overview
+## What this is
 
-Anima is the design agent in your AI coding swarm. This skill gives agents design awareness and the ability to turn visual ideas into production-ready code.
+Agent Grid is a governed hub where AI agents build, host, publish, and share web apps. You reach it through the **Agent Grid MCP server** or the **Anima CLI** — both are the same surface, so use whichever is already connected.
 
-There are **two distinct paths** depending on what you're trying to do:
+The unit you work with is an **artifact**: one real git repository in your team's workspace. Everything is an artifact — the code, the running app, the thing you publish. When an artifact holds a web app, it renders live at its URL.
 
-### Path A: Create & Publish (Full App Creation)
+Two ideas carry most of the work:
 
-Build complete applications from scratch. No local codebase needed. Anima handles everything: design, code generation, scalable database, and hosting. You go from idea to live URL in minutes.
+- **`artifact-*` tools own one artifact's lifecycle** — create, check, edit, rename, publish.
+- **`workspace-*` tools own the registry** — what artifacts exist.
 
-This path is powerful for **parallel variant creation**. Generate multiple versions of the same idea with different prompts, all at the same time. Pick the best one, then open the playground URL to keep refining. All without writing a line of code or managing infrastructure.
-
-**Create Anima Playgrounds by:** Prompt, Clone URL, Figma URL
-
-**What you get:**
-- A fully working application in an Anima Playground
-- The ability to generate multiple variants in parallel and compare them
-- No tokens wasted on file scanning, dependency resolution, or build tooling
-- Scalable database already connected
-- Scalable hosting when you publish
-
-### Path B: Integrate into Codebase (Design-Aware Code Generation)
-
-Pull design elements and experiences from Anima into your existing project. Use this when you have a codebase and want to implement specific components or pages from a Figma design url or an existing Anima Playground.
-
-**Flows:** Figma URL to Code (codegen), Anima Playground to Code
-
-**What you get:**
-- Generated code from Anima playgrounds designs adapted to your stack
-- Precise design tokens, assets, and implementation guidelines
+**The `sessionId` is the artifact's id.** It's returned by `artifact-create`, and it's the last path segment of any artifact URL (`https://app.agentgrid.io/artifacts/mr25vsjppVtbMx` → `mr25vsjppVtbMx`). Artifact URLs are currently also served on the Playground host (`https://dev.animaapp.com/chat/<sessionId>`) — same artifact, same id, take the last segment either way.
 
 ---
 
-## Prerequisites
+## Pick the job first
 
-- Anima MCP server must be connected and accessible — or use the Anima CLI as an alternative
-- User must have an Anima account (free tier available)
-- For Figma flows: Figma account connected during Anima authentication
-
-## Important: Timeouts
-
-Anima's `playground-create` tool generates full applications from scratch. This takes time:
-
-- **p2c (prompt to code):** Typically 3-7 minutes
-- **l2c (link to code):** Typically 3-7 minutes
-- **f2c (Figma to code):** Typically 2-5 minutes
-- **playground-publish:** Typically 1-3 minutes
-
-**Always use a 10-minute timeout** (600000ms) for `playground-create`, `playground-publish`, and CLI calls. Default timeouts will fail.
-
-## Setup
-
-Use the Anima CLI (`npx @animaapp/cli`) for all operations. CLI examples are shown throughout this guide. See the [CLI documentation](https://github.com/AnimaApp/anima-cli) for authentication setup.
-
-If the Anima MCP server is connected, MCP tools can also be used. See the [MCP setup guide](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/setup.md) for details.
-
----
-
-## Choosing the Right Path
-
-Before diving into tools and parameters, decide which path fits the user's goal.
-
-### When to use Path A (Create & Publish)
-
-- User wants to **build something new** from a description, reference site, or Figma design
-- User wants a **live URL** they can share immediately
-- No existing codebase to integrate into
-- Goal is prototyping, exploring visual directions, or shipping a standalone app
-
-### When to use Path B (Integrate into Codebase)
-
-- User has an **existing project** and wants to add a component or page from Figma
-- User wants **generated code files** to drop into their repo, not a hosted app
-- User already built something in an Anima Playground and wants to pull the code locally
-
-### Ambiguous cases
-
-| User says | Likely path | Why |
+| The user wants | Job | Start with |
 |---|---|---|
-| "Implement this Figma design" | **Path B** | "Implement" implies code in their project |
-| "Turn this Figma into a live site" | **Path A** (f2c) | "Live site" means they want hosting |
-| "Build me an app like this" + URL | **Path A** (l2c) | Clone and rebuild from scratch |
-| "Add this Figma component to my project" | **Path B** | "Add to my project" = codebase integration |
-| "Clone this website" | **Path A** (l2c) | Clone = capture and rebuild from scratch |
-| "Download the playground code" | **Path B** | Wants files locally |
+| Something new built for them | **A. Generate** | `artifact-create` (p2c / l2c / f2c) |
+| Their own code hosted on Agent Grid | **B. Bring your own** | `artifact-create` (import / empty) |
+| An existing artifact changed | **C. Edit** | `artifact-get_git_token` → clone, commit, push |
+| Figma design implemented **in their repo** | **D. Codegen** | `codegen-figma_to_code` |
 
-When still unclear, ask: "Do you want a live hosted app, or code files to add to your project?"
+The one that gets confused most is A vs D. "Turn this Figma into a live site" is **A** (creates a hosted artifact). "Implement this Figma in my project" is **D** (writes files into their codebase, no artifact). When it's genuinely unclear, ask: *"Do you want a live hosted app, or code files in your project?"*
+
+Job C is how you change an artifact's content: humans edit in the Agent Grid webapp, agents use git. Don't reach for browser automation, and don't re-generate an artifact to edit it.
 
 ---
 
-## From Request to Prompt
+## The async contract (read before Job A)
 
-Before calling any tool, the agent needs to decide: is this request ready to build, or does it need clarification? And if it's ready, how do you write a prompt that lets Anima shine?
+`artifact-create` with a generation type (`p2c`, `l2c`, `f2c`) **returns immediately**, while the app is still building:
 
-### When to ask vs when to build
+```
+{ success, status: "generating", sessionId, playgroundUrl, previewUrl }
+```
 
-**Threshold rule:** Can you write a prompt that includes **purpose**, **audience**, and **3-5 key features**? Yes = build. No = ask.
+That is not a finished app. Your next action — **before you reply to the user** — is one call to:
 
-**Signals to just build:**
-- "Build a recipe sharing app where users can upload photos and rate each other's dishes" (clear purpose, audience implied, features named)
-- "Clone stripe.com" (unambiguous)
-- "Turn this into a live site" + Figma URL (clear intent and input)
+```
+artifact-status(sessionId: "<id>", wait: true)
+```
 
-**Signals to ask:**
-- "Build me a website" (what kind? for whom?)
-- "Make something for my business" (what does the business do?)
-- "Create an app" (what should it do?)
+With `wait: true` the call blocks until the artifact is `ready` or `failed`, or returns after ~45s still `generating`. If it comes back still generating, **call it again**. Keep going until the status changes, then report a finished app rather than a promise.
 
-When you ask, ask everything in **one message**. Don't drip-feed questions. If the user is vague and doesn't want to answer, skip clarification and use [Explore Mode](#explore-mode-parallel-variants) to generate 3 variants instead. Showing beats asking.
+Three rules that prevent the common failures:
 
-### Crafting the prompt
+1. **Never call `artifact-create` twice for the same request.** A slow generation is not a failed one — it creates a duplicate artifact.
+2. **Never poll with `wait: false` in a tight loop.** Use `wait: true`; the snapshot mode exists for one-off checks.
+3. **Don't rely on a long client timeout.** The `wait: true` cycle is the supported pattern, not a single 10-minute call.
 
-Anima is a design-aware AI. Treat it like a creative collaborator, not a code compiler. Describe the *feel* of what you want, not the pixel-level implementation. Over-specifying with code and hex values **overrides Anima's design intelligence** and produces generic results.
+Own-code types (`empty`, `import`) skip all of this — they're ready the moment they return.
 
-**Include in prompts:** purpose, audience, mood/style, 3-5 key features, content tone.
+---
 
-**Leave out of prompts:** code snippets, CSS values, hex colors, pixel dimensions, font sizes, component library names (use the `uiLibrary` parameter instead), implementation details, file structure.
+## Job A: Generate an artifact
 
-**Bad (over-specified):**
+### Choose the type
+
+| User provides | Type | Required fields |
+|---|---|---|
+| A description of what to build | `p2c` | `prompt` |
+| A website URL to clone | `l2c` | `url` |
+| A Figma design to make live | `f2c` | `fileKey`, `nodesId`, `X-Figma-Token` header |
+
+### Write the prompt (p2c)
+
+Agent Grid is design-aware. Describe the *feel* and the *purpose*; over-specifying with hex values and pixel dimensions overrides that design intelligence and yields generic results.
+
+**Include:** purpose, audience, mood/style, 3–5 key features, content tone.
+**Leave out:** code snippets, CSS values, hex colors, pixel sizes, font sizes, file structure, component library names (use `uiLibrary` instead).
+
+Bad:
 ```
 Create a dashboard. Use #1a1a2e background, #16213e sidebar at 280px width,
-#0f3460 cards with 16px padding, border-radius 12px. Header height 64px with
-a flex row, justify-between. Font: Inter 14px for body, 24px bold for headings.
+#0f3460 cards with 16px padding, border-radius 12px. Font: Inter 14px.
 ```
 
-**Good (descriptive):**
+Good:
 ```
 SaaS analytics dashboard for a B2B product team. Clean, minimal feel.
 Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a
 recent activity feed. Professional but approachable. Think Linear meets Stripe.
 ```
 
-## Path A: Create & Publish
+**Ready to build, or ask first?** If you can name the **purpose**, **audience**, and **3–5 features**, build. If you can't ("build me a website"), ask — everything in one message, no drip-feeding. If the user won't specify, don't stall: generate 3 variants (see [Explore mode](#explore-mode-parallel-variants)). Showing beats asking.
 
-### Step A1: Identify the Flow
+### Options that actually exist
 
-Determine which flow to use based on what the user provides and what they want.
+`framework` is **`html` or `react` only**, and **defaults to `html`** over MCP. If the user wants React, say so explicitly.
 
-**User has a text description or idea → p2c**
+`styling` is per-type — passing the wrong one is rejected:
 
-The most flexible path. Anima designs everything from your description. Best for new apps, prototypes, and creative exploration.
+| Type | Valid `styling` | Valid `uiLibrary` |
+|---|---|---|
+| `p2c` | `tailwind`, `css`, `inline_styles` | *(none — not supported)* |
+| `l2c` | `tailwind`, `inline_styles`, `vanilla_css` | `shadcn` |
+| `f2c` | `tailwind`, `plain_css`, `css_modules`, `inline_styles` | `mui`, `antd`, `shadcn`, `clean_react` |
 
-**User has a website URL → l2c**
+`language` (`typescript` / `javascript`) applies only when `framework` is `react`, and only to `l2c` and `f2c` — `p2c` accepts it but discards it. `l2c` with `framework: "react"` is always TypeScript regardless of what you pass; with the default `html` framework there is no language at all. `guidelines` is `p2c` only. `name` is ignored by generation types — they name themselves from the content; rename afterwards with `artifact-update_metadata`.
 
-Use l2c to clone the site. Anima recreates the full site into an editable playground.
+### Figma URLs
 
-**User has a Figma URL → f2c (Path A) or codegen (Path B)**
+`https://figma.com/design/:fileKey/:name?node-id=1-2`
 
-Two sub-cases:
-- **"Turn this into a live app"** or **"Make this a working site"** → f2c (Path A). Creates a full playground from the Figma design
-- **"Implement this in my project"** or **"Add this component to my codebase"** → codegen (Path B). Generates code files for integration
+- **`fileKey`** — the segment after `/design/`
+- **`nodesId`** — the `node-id` value with `-` replaced by `:` (`42-15` → `["42:15"]`)
 
-**Quick reference:**
-
-| User provides | Intent | Flow | Tool |
-|---|---|---|---|
-| Text description | Build something new | p2c | `playground-create` type="p2c" |
-| Website URL | Clone it | l2c | `playground-create` type="l2c" |
-| Figma URL | Make it a live app | f2c | `playground-create` type="f2c" |
-| Figma URL | Implement in my project | codegen | `codegen-figma_to_code` (Path B) |
-
-### Step A2: Create
-
-#### Prompt to Code (p2c)
-
-Describe what you want in plain language. Anima designs and generates a complete playground with brand-aware visuals.
-
-**CLI:**
-```bash
-anima create -t p2c -p "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable." --guidelines "Dark mode, accessible contrast ratios"
-```
+### Examples
 
 **MCP:**
 ```
-playground-create(
+artifact-create(
   type: "p2c",
-  prompt: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards for key metrics, a usage trend chart, and a recent activity feed. Professional but approachable.",
+  prompt: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards, a usage trend chart, and a recent activity feed.",
   framework: "react",
-  styling: "tailwind",
-  guidelines: "Dark mode, accessible contrast ratios"
+  styling: "tailwind"
 )
+→ { status: "generating", sessionId: "mr25vsjppVtbMx", previewUrl, playgroundUrl }
+
+artifact-status(sessionId: "mr25vsjppVtbMx", wait: true)
+→ { status: "ready", playgroundUrl, previewUrl }
 ```
-
-Only `-t` and `-p` are required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
-
-**Parameters specific to p2c:**
-
-| Parameter | Required | Description |
-|---|---|---|
-| `prompt` | Yes | Text description of what to build |
-| `guidelines` | No | Additional coding guidelines or constraints |
-
-**Styling options:** `tailwind`, `css`, `inline_styles`
-
-#### Link to Code (l2c)
-
-Provide a website URL. Anima recreates it as an editable playground with production-ready code.
 
 **CLI:**
 ```bash
-anima create -t l2c -u https://stripe.com/payments --ui-library shadcn
+anima create -t p2c -p "SaaS analytics dashboard for a B2B product team..." \
+  --framework react --guidelines "Dark mode, accessible contrast"
+
+anima create -t l2c -u https://stripe.com/payments --framework react --ui-library shadcn
+
+anima create -t f2c --file-key "https://figma.com/design/abc123/My-File?node-id=42-15" \
+  --framework react --ui-library shadcn
 ```
 
-**MCP:**
-```
-playground-create(
-  type: "l2c",
-  url: "https://stripe.com/payments",
-  framework: "react",
-  styling: "tailwind",
-  language: "typescript",
-  uiLibrary: "shadcn"
-)
-```
+The CLI parses full Figma URLs and normalizes node IDs for you.
 
-Only `-t` and `-u` are required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
+**Pass `--framework react` whenever you pass `--ui-library` or `--language`.** The CLI defaults generation to `html`, and the server rejects both fields unless the framework is `react`.
 
-**Parameters specific to l2c:**
+> **The CLI does not wait for generation.** `anima create` prints "Artifact created!" as soon as the artifact is registered — while p2c/l2c/f2c are still building — and there is no `anima status` command. To know when the app is actually ready, use the MCP `artifact-status(wait: true)` cycle. Own-code types (`empty` / `import`) are genuinely finished when the command returns.
 
-| Parameter | Required | Description |
-|---|---|---|
-| `url` | Yes | Website URL to clone |
+### Explore mode: parallel variants
 
-**Styling options:** `tailwind`, `inline_styles`
+When the user says "build me X" or "prototype X", generate several interpretations at once instead of one:
 
-**UI Library options:** `shadcn` only
+1. Write **3 prompt variants** — same core idea, different creative angle (faithful / opinionated / different visual language).
+2. Fire all 3 `artifact-create` calls **in parallel**.
+3. Run the `artifact-status(wait: true)` cycle for each as it comes back.
+4. Publish each one only if the user asked for live URLs (see Job E), then return the set for comparison. Screenshot each if you have that ability.
 
-**Language:** Always `typescript` for l2c
+Because they run in parallel, three variants cost roughly the wall-clock of one.
 
-#### Figma to Playground (f2c)
-
-Provide a Figma URL. Anima implements the design into a full playground you can preview and iterate on.
-
-**URL format:** `https://figma.com/design/:fileKey/:fileName?node-id=1-2`
-
-**Extract:**
-- **File key:** The segment after `/design/` (e.g., `kL9xQn2VwM8pYrTb4ZcHjF`)
-- **Node ID:** The `node-id` query parameter value, replacing `-` with `:` (e.g., `42-15` becomes `42:15`)
-
-**CLI** (accepts full Figma URL — extracts file key and node IDs automatically):
-```bash
-anima create -t f2c --file-key "https://figma.com/design/kL9xQn2VwM8pYrTb4ZcHjF/My-File?node-id=42-15" --ui-library shadcn
-```
-
-**MCP:**
-```
-playground-create(
-  type: "f2c",
-  fileKey: "kL9xQn2VwM8pYrTb4ZcHjF",
-  nodesId: ["42:15"],
-  framework: "react",
-  styling: "tailwind",
-  language: "typescript",
-  uiLibrary: "shadcn"
-)
-```
-
-Only `-t` and `--file-key` are required. The CLI parses Figma URLs and normalizes node IDs automatically. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`.
-
-**Parameters specific to f2c:**
-
-| Parameter | Required | Description |
-|---|---|---|
-| `fileKey` | Yes | Figma file key from URL |
-| `nodesId` | Yes | Array of Figma node IDs (use `:` not `-`) |
-
-**Styling options:** `tailwind`, `plain_css`, `css_modules`, `inline_styles`
-
-**UI Library options:** `mui`, `antd`, `shadcn`, `clean_react`
-
-### Step A3: Publish
-
-After creating a playground, deploy it to a live URL.
-
-**CLI:**
-```bash
-anima publish abc123xyz
-```
-
-**MCP:**
-```
-playground-publish(
-  sessionId: "abc123xyz",
-  mode: "webapp"
-)
-```
-
-The response includes the live URL for the published app.
-
-### Explore Mode: Parallel Variants
-
-This is Path A's secret weapon. When a user says "build me X" or "prototype X", generate multiple interpretations in parallel, publish all of them, and return live URLs for comparison.
-
-**Workflow:**
-
-1. **Generate 3 prompt variants** from the user's idea. Each takes a different creative angle:
-   - Variant 1: Faithful, straightforward interpretation
-   - Variant 2: A more creative or opinionated take
-   - Variant 3: A different visual style or layout approach
-
-2. **Launch all 3 `playground-create` calls in parallel** (one per variant, type p2c)
-
-3. **As each one completes**, immediately call `playground-publish` (mode webapp)
-
-4. **Return all 3 live URLs** so the user can pick a favorite or ask for refinements. Optionally, if you have a screenshot tool available, capture each page to show in the chat.
-
-**Timing:** All 3 variants generate in parallel, so total wall time is roughly the same as one (~5-7 minutes creation + 1-3 minutes publishing). Expect results within ~10 minutes.
-
-**Tips for good variant prompts:**
-- Keep the core idea identical across all three
-- Vary the visual approach: e.g., "minimal and clean", "bold and colorful", "enterprise and professional"
-- Add specific guidelines to each variant to differentiate them
-- If the user mentioned a reference site or style, incorporate it into one variant
-- Follow the [prompt crafting principles](#crafting-the-prompt) above: describe mood and purpose, not implementation details
+> **Three is the ceiling, not a suggestion.** A single user may have at most **3 active jobs** at once, counted across generation, codegen, and deploy. Three variants sit exactly on that cap, so a concurrent publish or a leftover job makes one variant fail with `Too many concurrent jobs`. If you see that error, wait for one to finish and retry it — don't reduce the request to two silently.
 
 ---
 
-## Path B: Integrate into Codebase
+## Job B: Bring your own code
 
-### Step B1: Identify the Flow
+Two types, both **ready immediately** — no status polling:
 
-| User provides | Flow | Tool |
-|---|---|---|
-| Figma URL + wants code in their project | Figma to Code | `codegen-figma_to_code` |
-| Anima Playground URL + wants code locally | Download | `project-download_from_playground` |
+**`import`** — your code becomes the first commit. Pass **exactly one** transport:
 
-### Step B2: Match Project Stack to Tool Parameters
+- `files` — a `{path: content}` map of UTF-8 text. Text only, capped at **1000 files** and **10 MB** decoded. (The tool description says "roughly 100 KB"; the enforced limits are the ones above, and the file count is the one that usually bites.)
+- `zipUploadId` — for binaries or anything larger. Three steps:
+  1. `artifact-get_zip_upload_url()` → `{ zipUploadId, uploadUrl }`
+  2. HTTP `PUT` the zip to `uploadUrl` (treat it as a secret)
+  3. `artifact-create(type: "import", zipUploadId: "...")` within **30 minutes**; the id is single-use
 
-| Project stack | Parameter | Value |
-|---|---|---|
-| React | `framework` | `"react"` |
-| No React | `framework` | `"html"` |
-| Tailwind | `styling` | `"tailwind"` |
-| CSS Modules | `styling` | `"css_modules"` |
-| Plain CSS | `styling` | `"plain_css"` |
-| TypeScript | `language` | `"typescript"` |
-| MUI | `uiLibrary` | `"mui"` |
-| Ant Design | `uiLibrary` | `"antd"` |
-| shadcn | `uiLibrary` | `"shadcn"` |
+  Zip limits: **50 MB max**, source/config/assets only — **no `node_modules`, no build output**. Shell and executable files are skipped and reported back.
 
-### Step B3: Generate Code
+**`empty`** — a repo you push your own code to. `framework` is **required** here (there are no files to detect it from); declare `react` if you intend to push React code.
 
-#### Figma to Code (direct implementation)
+> It is not literally empty: `empty` lands an initial commit containing a seed `README.md`. **Clone it and commit on top** — pushing an unrelated local history is rejected as a non-fast-forward.
 
-**CLI** (writes files directly to disk):
+Both normally return `gitRemoteUrl` **with a read-write git token in the same response** — when it's there, clone it directly instead of calling `artifact-get_git_token`. If the response has no `gitRemoteUrl` (the mint can be skipped or fail), follow its `nextSteps` and call `artifact-get_git_token`.
+
 ```bash
-anima codegen --file-key "https://figma.com/design/kL9xQn2VwM8pYrTb4ZcHjF/My-File?node-id=42-15" -o ./components --ui-library shadcn
+anima create -t import --from ./my-project --name "My project"
+anima create -t empty --framework react --name "My project"
 ```
 
-**MCP:**
+---
+
+## Job C: Edit an existing artifact
+
+An artifact is a real git repo. Git is your route to its files — the webapp is the human's.
+
+```
+artifact-get_git_token(sessionId: "mr25vsjppVtbMx")
+→ { gitRemoteUrl }
+```
+
+```bash
+git clone <gitRemoteUrl> && cd <repo>
+# edit, commit
+git push          # pushing updates the live artifact
+```
+
+- The `gitRemoteUrl` embeds a **short-lived, single-artifact token** — treat it as a secret, never log or echo it.
+- Lifetime is `ttlSeconds`: default and max **3600**, minimum **300**.
+- **Tokens cannot be renewed.** On a "token expired" git error, call the tool again and point the remote at the fresh URL:
+  ```bash
+  git remote set-url origin <new gitRemoteUrl>
+  ```
+- Read-only or read-write is decided by your access to the artifact.
+
+To change the **name or visibility** instead of the content, that's metadata — use `artifact-update_metadata`, not git.
+
+Don't know the `sessionId`? `workspace-list_artifacts()` (no parameters) lists your team's artifacts with theirs.
+
+---
+
+## Job D: Figma into an existing codebase
+
+`codegen-figma_to_code` returns files for **your** project. It creates no artifact and hosts nothing.
+
+**Match the user's actual stack** — detect it, don't assume:
+
+| Their stack | Parameter |
+|---|---|
+| React / not React | `framework`: `react` / `html` |
+| Tailwind, plain CSS | `styling`: `tailwind` / `plain_css` |
+| TypeScript | `language`: `typescript` |
+| MUI, Ant Design, shadcn | `uiLibrary`: `mui` / `antd` / `shadcn` |
+| No UI library | `uiLibrary`: `clean_react`, or omit it |
+
+Requires the `X-Figma-Token` header (a Figma personal access token).
+
 ```
 codegen-figma_to_code(
-  fileKey: "kL9xQn2VwM8pYrTb4ZcHjF",
+  fileKey: "abc123XYZ",
   nodesId: ["42:15"],
   framework: "react",
   styling: "tailwind",
@@ -372,54 +251,80 @@ codegen-figma_to_code(
 )
 ```
 
-**CLI** (writes files directly to disk):
 ```bash
-anima codegen --file-key "https://figma.com/design/kL9xQn2VwM8pYrTb4ZcHjF/My-File?node-id=42-15" -o ./components --ui-library shadcn
+anima codegen --file-key "https://figma.com/design/abc123/My-File?node-id=42-15" \
+  -o ./components --ui-library shadcn
 ```
 
-Only `--file-key` is required. Defaults: `--framework react`, `--styling tailwind`, `--language typescript`, `-o ./anima-codegen-output`.
+**After the call, you are not done.** The response carries more than code:
 
-Use the response fields (snapshots, assets, guidelines) as design reference when implementing.
+1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design.
+2. Implement using **both** the generated code and the snapshots.
+3. Map `data-variant` attributes in the generated components onto your component props.
+4. Pull CSS variables out of the generated styles for exact colors.
+5. **Follow `guidelines` from the response** — it's the per-generation instruction set.
+6. Compare your finished implementation against the snapshot.
+7. Download everything in `assets` and place it at your `assetsBaseUrl` path, or the generated references will 404.
 
-#### Download Playground to Local Files
-
-**CLI:**
-```bash
-anima download https://dev.animaapp.com/chat/abc123xyz -o ./my-project
-```
-
-**MCP:**
-```
-project-download_from_playground(sessionId: "abc123xyz")
-```
-
-The CLI accepts playground URLs directly and extracts the session ID automatically.
+**`files` is filtered, not a full project.** Boilerplate is stripped before you see it: `package.json`, `tsconfig*.json`, `vite.config.*`, entry points (`src/index.*`, `src/main.*`), `*.d.ts`, `src/lib/utils.*`, and **everything under `src/components/`**. Extracted and shadcn components live in that last path, so don't expect them in the response or conclude the generation failed — work from the files you do get, plus `guidelines` and the snapshots.
 
 ---
 
-## CLI & MCP Quick Reference
+## Job E: Publish
 
-| Action | CLI Command | MCP Tool |
-|--------|-------------|----------|
-| Prompt to Code | `anima create -t p2c -p "..."` | `playground-create` type="p2c" |
-| Link to Code | `anima create -t l2c -u <url>` | `playground-create` type="l2c" |
-| Figma to Playground | `anima create -t f2c --file-key <key>` | `playground-create` type="f2c" |
-| Publish | `anima publish <sessionId>` | `playground-publish` |
-| Figma to Code | `anima codegen --file-key <key> -o ./out` | `codegen-figma_to_code` |
-| Download | `anima download <url> -o ./out` | `project-download_from_playground` |
+```
+artifact-publish(sessionId: "mr25vsjppVtbMx", mode: "webapp")
+→ { success, liveUrl, subdomain }
+```
 
-**When to use CLI vs MCP:**
-- **CLI**: Preferred — lightweight, no MCP setup needed, works in headless environments
-- **MCP**: Alternative when Anima MCP server is already connected
+**Publishing makes the app public to the world.** It is *not* required for sharing — the artifact is already viewable at its `playgroundUrl` by anyone who can reach it. Only publish when the user explicitly asked to publish or deploy; otherwise share the URL and offer publishing as a follow-up.
 
-**CLI defaults** (all optional): `--framework react`, `--styling tailwind`, `--language typescript` (when react). Only the type flag and the type-specific input (prompt, url, or file-key) are required.
+- `mode: "webapp"` is the default and the only mode available over MCP. **`designSystem` always fails over MCP** with an enterprise contact link — don't offer it as a capability.
+- `artifact-unpublish(sessionId)` takes the live URL offline. It does not delete the artifact or its code, and re-publishing reuses the same subdomain.
+
+```bash
+anima publish <sessionId>
+anima unpublish <sessionId>
+```
 
 ---
 
-## Additional References
+## Other lifecycle tools
 
-- [Setup guide](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/setup.md)
-- [MCP Tools Reference](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/mcp-tools.md)
-- [Examples](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/examples.md)
-- [Troubleshooting](https://github.com/AnimaApp/mcp-server-guide/blob/main/anima-skill-references/troubleshooting.md)
-- [Anima MCP Documentation](https://docs.animaapp.com/docs/integrations/anima-mcp)
+**`artifact-update_metadata(sessionId, name?, privacy?)`** — display name and/or visibility (`public` = anyone with the link, `private` = team only). Send at least one. Never touches code.
+
+**`artifact-duplicate(sessionId, name?)`** — clones an artifact into a new, independent one in your team's Default workspace. Copies code, assets, and supported database content; does **not** copy chat or custom domains. Source must be in your current team. Default name is `"<source name> (Copy)"`.
+
+> **Not idempotent.** If a duplicate call times out or its response is lost, call `workspace-list_artifacts` to check before retrying — the first call may have already created the copy.
+
+**`workspace-list_artifacts()`** — no parameters; lists your team's artifacts. App rows carry a `sessionId` (what the `artifact-*` tools need); `markdown` and `asset` rows carry only an `id`. The result may set `truncated`, and an agent without `read` access gets an empty list rather than an error.
+
+---
+
+## CLI ↔ MCP map
+
+| Action | CLI | MCP |
+|---|---|---|
+| Generate | `anima create -t p2c\|l2c\|f2c ...` (does not await completion) | `artifact-create` + `artifact-status` |
+| Import own code | `anima create -t import --from <path>` | `artifact-get_zip_upload_url` + `artifact-create` |
+| Empty repo | `anima create -t empty --framework <fw>` | `artifact-create` |
+| Edit content | `anima get-git-token <url\|id>` | `artifact-get_git_token` |
+| List artifacts | `anima list` | `workspace-list_artifacts` |
+| Rename / visibility | `anima update <id> --name --privacy` | `artifact-update_metadata` |
+| Duplicate | `anima duplicate <url\|id>` | `artifact-duplicate` |
+| Publish / unpublish | `anima publish\|unpublish <id>` | `artifact-publish` / `artifact-unpublish` |
+| Figma → code files | `anima codegen --file-key <key> -o <dir>` | `codegen-figma_to_code` |
+
+**Which to use:** the CLI needs no MCP setup and works headless, so it's the better fit for own-code flows (`empty`, `import`) and one-shot codegen. **For generation (p2c/l2c/f2c), prefer MCP** — only `artifact-status` can tell you the app finished, and the CLI cannot call it.
+
+Watch the framework defaults, which differ by tool: `artifact-create` defaults to **`html`** (both over MCP and in the CLI), while `codegen-figma_to_code` and `anima codegen` default to **`react`**. Pass `--framework` / `framework` explicitly and you never have to remember which is which.
+
+---
+
+## References
+
+- [Setup and authentication](references/setup.md)
+- [Full MCP tool reference](references/mcp-tools.md)
+- [Git workflow](references/git-workflow.md)
+- [Worked examples](references/workflows.md)
+- [Troubleshooting](references/troubleshooting.md)
