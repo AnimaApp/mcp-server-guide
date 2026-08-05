@@ -53,7 +53,7 @@ artifact-create(type: "l2c", url: "https://stripe.com/payments",
 
 User: *"The header on https://app.agentgrid.io/artifacts/mr25vsjppVtbMx is broken on mobile."*
 
-The `sessionId` is the last path segment. Do **not** regenerate, and do not open it in a browser to edit.
+The `sessionId` is the last path segment. Don't regenerate the artifact, and don't drive the webapp — edit it over git.
 
 ```
 artifact-get_git_token(sessionId: "mr25vsjppVtbMx") → { gitRemoteUrl }

@@ -38,7 +38,7 @@ Two ideas carry most of the work:
 
 The one that gets confused most is A vs D. "Turn this Figma into a live site" is **A** (creates a hosted artifact). "Implement this Figma in my project" is **D** (writes files into their codebase, no artifact). When it's genuinely unclear, ask: *"Do you want a live hosted app, or code files in your project?"*
 
-Job C is the only way to change an artifact's content. **Never** try to edit an artifact through a browser or browser automation — the git flow is the door.
+Job C is how you change an artifact's content: humans edit in the Agent Grid webapp, agents use git. Don't reach for browser automation, and don't re-generate an artifact to edit it.
 
 ---
 
@@ -198,7 +198,7 @@ anima create -t empty --framework react --name "My project"
 
 ## Job C: Edit an existing artifact
 
-An artifact is a real git repo. This is the only way to change its files.
+An artifact is a real git repo. Git is your route to its files — the webapp is the human's.
 
 ```
 artifact-get_git_token(sessionId: "mr25vsjppVtbMx")

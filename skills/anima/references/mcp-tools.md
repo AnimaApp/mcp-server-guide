@@ -65,7 +65,7 @@ With `wait: true` the call returns as soon as status is `ready` or `failed`, or 
 
 ## `artifact-get_git_token`
 
-Read or edit an artifact's code. The **only** way to change its content.
+Read or edit an artifact's code — the agent's route to its content (humans use the Agent Grid webapp).
 
 | Parameter | Required | Type | Notes |
 |---|---|---|---|
