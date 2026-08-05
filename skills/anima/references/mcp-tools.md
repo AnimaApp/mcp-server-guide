@@ -171,10 +171,16 @@ Generates code files for **your own project**. Creates no artifact and hosts not
 
 Requires the `X-Figma-Token` header.
 
-**Returns:** `{ files: {path: {content, isBinary}}, assets: [{name, url}], snapshotsUrls: {nodeId: url}, guidelines, tokenUsage }`
+**Returns:** `{ success, sessionId, files: {path: {content, isBinary}}, assets: [{name, url}], snapshotsUrls: {nodeId: url}, guidelines, tokenUsage }`
+
+**Check `success` before touching `files`.** A failure returns `{ success: false, error, reason }` with **no `files` key at all** — "Figma account not connected" is the common one. And `snapshotsUrls` is omitted entirely when Figma's image render fails (rate limit, oversized node), while `success` stays `true`, so treat snapshots as optional rather than a precondition.
+
+`sessionId` here identifies the codegen run, **not an artifact** — it does not appear in `workspace-list_artifacts`, and passing it to `artifact-status` or `artifact-publish` fails with "This agent did not start this generation". Codegen creates no artifact.
 
 **The response is not just code.** Download and view `snapshotsUrls` as visual ground truth, follow `guidelines`, map `data-variant` attributes to your props, and download `assets` to your `assetsBaseUrl` — otherwise the generated references break.
 
-The whole result arrives as a **single JSON text block** — snapshots are URLs, never inline image data. Each one is a Figma CDN URL (`figma-alpha-api.s3.…/images/<uuid>`) with no file extension, serving **JPEG** at the design's full resolution; a single frame can exceed 1 MB. Read the media type from the `Content-Type` header when re-embedding — never hardcode `image/png`.
+The whole result arrives as a **single JSON text block** — snapshots are URLs, never inline image data. Each one is a Figma CDN URL (`figma-alpha-api.s3.…/images/<uuid>`) with no file extension, serving **JPEG** at the design's full resolution: 1.2 MB for a 1728×1163 frame and 3.1 MB for a 1440×1848 one are both real measurements, so budget for several MB per node and downscale before re-embedding.
 
-**`files` is filtered.** Boilerplate is removed before the response is built: `package.json`, `tsconfig*.json`, `vite.config.*`, `src/index.*`, `src/main.*`, `*.d.ts`, `src/lib/utils.*`, and everything under `src/components/` — where extracted and shadcn components live. Expect a partial tree, not a runnable project.
+When you re-embed one, **check the status code first, then take the media type from `Content-Type` and confirm it starts with `image/`**. These objects expire (a 30-day S3 lifecycle rule), and an expired one returns `403` with `Content-Type: application/xml` — follow the header blindly and you'll embed an S3 error document as an image. Never hardcode `image/png`.
+
+**`files` is filtered.** Removed before the response is built: `package.json`, `package-lock.json`, `tsconfig*.json`, `vite.config.ts|js`, `postcss.config.ts|js`, `.eslintrc*`, `.prettierrc*`, `.gitignore`, `LICENSE*`, `src/index.tsx|ts|jsx|js`, `src/main.tsx|ts|jsx|js`, `src/lib/utils.ts|js`, `*.d.ts`, and everything under `src/components/` — where extracted and shadcn components live. Note these are exact extensions, not globs: `vite.config.mjs` survives, and **CSS is deliberately kept** (including `src/index.css` and `tailwind.css`) because it carries the design tokens. Expect a partial tree, not a runnable project.

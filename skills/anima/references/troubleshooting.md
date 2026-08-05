@@ -72,11 +72,15 @@ A user may have at most **3 active jobs** at once, counted across generation, co
 
 ## The model rejected a snapshot image
 
-You re-embedded it under the wrong media type. Snapshots are **JPEG**; declaring `image/png` over JPEG bytes is rejected outright by APIs that validate the two against each other. The URLs are extension-less by design (Figma's CDN format), so the `Content-Type` header on the download is the authority — use it rather than guessing from the URL.
+You re-embedded it under the wrong media type. Snapshots are **JPEG**; declaring `image/png` over JPEG bytes is rejected outright by APIs that validate the two against each other. The URLs are extension-less by design (Figma's CDN format), so read `Content-Type` from the download rather than guessing from the URL — but check the status code first and confirm the value starts with `image/`. These objects expire on a 30-day lifecycle rule, and an expired one answers `403` with `Content-Type: application/xml`; trusting that header embeds an S3 error document as your image.
 
 ## Snapshots are bigger than expected
 
-They're full-resolution renders from Figma's CDN, not thumbnails — over 1 MB for a single frame is normal. Download them once and reuse them rather than re-fetching per step.
+They're full-resolution renders from Figma's CDN, not thumbnails. Measured: 1.2 MB for a 1728×1163 frame, 3.1 MB for a 1440×1848 one — 4 MB once base64-encoded, which is close to the per-image cap on some model APIs. Downscale before re-embedding, and download once and reuse rather than re-fetching per step.
+
+## "This agent did not start this generation"
+
+You passed a `sessionId` from `codegen-figma_to_code` to an `artifact-*` tool. Codegen creates no artifact; its `sessionId` identifies the codegen run and will never appear in `workspace-list_artifacts`. The message reads like a permissions problem but is a category error — if you want a hosted artifact from a Figma design, use `artifact-create` with `type: "f2c"` instead.
 
 ## Components are missing from the codegen response
 

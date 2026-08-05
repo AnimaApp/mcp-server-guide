@@ -23,7 +23,7 @@ Two ideas carry most of the work:
 - **`artifact-*` tools own one artifact's lifecycle** — create, check, edit, rename, publish.
 - **`workspace-*` tools own the registry** — what artifacts exist.
 
-**The `sessionId` is the artifact's id.** It's returned by `artifact-create`, and it's the last path segment of any artifact URL (`https://app.agentgrid.io/artifacts/mr25vsjppVtbMx` → `mr25vsjppVtbMx`). Artifact URLs are currently also served on the Playground host (`https://dev.animaapp.com/chat/<sessionId>`) — same artifact, same id, take the last segment either way.
+**The `sessionId` from `artifact-create` is the artifact's id.** It's the last path segment of any artifact URL (`https://app.agentgrid.io/artifacts/mr25vsjppVtbMx` → `mr25vsjppVtbMx`). Artifact URLs are currently also served on the Playground host (`https://dev.animaapp.com/chat/<sessionId>`) — same artifact, same id, take the last segment either way.
 
 ---
 
@@ -227,7 +227,7 @@ Don't know the `sessionId`? `workspace-list_artifacts()` (no parameters) lists y
 
 ## Job D: Figma into an existing codebase
 
-`codegen-figma_to_code` returns files for **your** project. It creates no artifact and hosts nothing.
+`codegen-figma_to_code` returns files for **your** project. It creates no artifact and hosts nothing — so the `sessionId` in its response identifies the codegen run, not an artifact. Passing it to `artifact-status` or `artifact-publish` fails with "This agent did not start this generation", which reads like a permissions error but is a category error.
 
 **Match the user's actual stack** — detect it, don't assume:
 
@@ -260,7 +260,9 @@ anima codegen --file-key "https://figma.com/design/abc123/My-File?node-id=42-15"
 
 **After the call, you are not done.** The response carries more than code:
 
-1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design. They are **JPEG**, served straight from Figma's CDN at the design's full resolution, so a single frame can run past 1 MB. The URLs have no file extension — that's Figma's URL format, not something missing. When you re-embed one for a model, take the media type from the response's `Content-Type`; hardcoding `image/png` gets the request rejected.
+1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design. They are **JPEG**, served from Figma's CDN at the design's full resolution: 1.2 MB and 3.1 MB per frame are both real measurements, so downscale before re-embedding. The URLs have no file extension — that's Figma's URL format, not something missing. Check the status code, then take the media type from `Content-Type` and confirm it starts with `image/`; these objects expire, and an expired one returns `403` with `application/xml`. Never hardcode `image/png`.
+
+   `snapshotsUrls` is absent entirely if Figma's render failed, and `success` is still `true` — carry on with the files and `guidelines` rather than treating snapshots as a precondition.
 2. Implement using **both** the generated code and the snapshots.
 3. Map `data-variant` attributes in the generated components onto your component props.
 4. Pull CSS variables out of the generated styles for exact colors.
