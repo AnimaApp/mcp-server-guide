@@ -179,7 +179,7 @@ Requires the `X-Figma-Token` header.
 
 **The response is not just code.** Download and view `snapshotsUrls` as visual ground truth, follow `guidelines`, map `data-variant` attributes to your props, and download `assets` to your `assetsBaseUrl` — otherwise the generated references break.
 
-The whole result arrives as a **single JSON text block** — snapshots are URLs, never inline image data. Each one is a Figma CDN URL (`figma-alpha-api.s3.…/images/<uuid>`) with no file extension, serving **JPEG** at the design's full resolution: 1.2 MB for a 1728×1163 frame and 3.1 MB for a 1440×1848 one are both real measurements, so budget for several MB per node and downscale before re-embedding.
+The whole result arrives as a **single JSON text block** — snapshots are URLs, never inline image data. Each one is a Figma CDN URL (`figma-alpha-api.s3.…/images/<uuid>`) with no file extension, serving **PNG or JPEG** — whichever compresses that frame smaller — at the design's full resolution. Measured range: 24 KB for a vector-heavy 1036×1006 frame, 1.9 MB for a photographic 1728×1163 one. Budget for a few MB per node and downscale before re-embedding.
 
 When you re-embed one, **check the status code first, then take the media type from `Content-Type` and confirm it starts with `image/`**. These objects expire (a 30-day S3 lifecycle rule), and an expired one returns `403` with `Content-Type: application/xml` — follow the header blindly and you'll embed an S3 error document as an image. Never hardcode `image/png`.
 

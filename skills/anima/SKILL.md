@@ -258,7 +258,7 @@ anima codegen --file-key "https://figma.com/design/abc123/My-File?node-id=42-15"
 
 **After the call, you are not done.** The response carries more than code:
 
-1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design. They are **JPEG**, served from Figma's CDN at the design's full resolution: 1.2 MB and 3.1 MB per frame are both real measurements, so downscale before re-embedding. The URLs have no file extension — that's Figma's URL format, not something missing. Check the status code, then take the media type from `Content-Type` and confirm it starts with `image/`; these objects expire, and an expired one returns `403` with `application/xml`. Never hardcode `image/png`.
+1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design. They are **PNG or JPEG** — whichever compresses that frame smaller, so UI-heavy designs come back PNG and photographic ones JPEG — served from Figma's CDN at the design's full resolution. Sizes range from tens of KB up to a few MB per frame, so downscale before re-embedding. The URLs have no file extension — that's Figma's URL format, not something missing — so the format is **only** knowable from the response. Check the status code, then take the media type from `Content-Type` and confirm it starts with `image/`; these objects expire, and an expired one returns `403` with `application/xml`. Never assume a format.
 
    `snapshotsUrls` is absent entirely if Figma's render failed, and `success` is still `true` — carry on with the files and `guidelines` rather than treating snapshots as a precondition.
 2. Implement using **both** the generated code and the snapshots.

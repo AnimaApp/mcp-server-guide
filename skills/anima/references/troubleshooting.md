@@ -72,7 +72,7 @@ A user may have at most **3 active jobs** at once, counted across generation, co
 
 ## The model rejected a snapshot image
 
-You re-embedded it under the wrong media type. Snapshots are **JPEG**; declaring `image/png` over JPEG bytes is rejected outright by APIs that validate the two against each other. The URLs are extension-less by design (Figma's CDN format), so read `Content-Type` from the download rather than guessing from the URL — but check the status code first and confirm the value starts with `image/`. These objects expire on a 30-day lifecycle rule, and an expired one answers `403` with `Content-Type: application/xml`; trusting that header embeds an S3 error document as your image.
+You re-embedded it under the wrong media type. Snapshots are **PNG or JPEG**, chosen per frame by whichever compresses smaller, so neither format can be assumed — and declaring the wrong one is rejected outright by APIs that validate the declared type against the bytes. The URLs are extension-less by design (Figma's CDN format), so read `Content-Type` from the download rather than guessing from the URL — but check the status code first and confirm the value starts with `image/`. These objects expire on a 30-day lifecycle rule, and an expired one answers `403` with `Content-Type: application/xml`; trusting that header embeds an S3 error document as your image.
 
 ## Snapshots are bigger than expected
 
