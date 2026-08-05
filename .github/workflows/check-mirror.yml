@@ -1,0 +1,25 @@
+name: Check skill mirror
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Regenerate the mirror
+        run: ./scripts/build-mirror.sh
+
+      - name: Fail if anima/SKILL.md is stale
+        run: |
+          if ! git diff --quiet -- anima/SKILL.md; then
+            echo "::error::anima/SKILL.md is out of sync with skills/anima/SKILL.md."
+            echo "Run ./scripts/build-mirror.sh and commit the result."
+            git diff -- anima/SKILL.md
+            exit 1
+          fi
+          echo "Mirror is in sync."

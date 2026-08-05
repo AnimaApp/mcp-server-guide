@@ -8,7 +8,7 @@
     {
       "name": "anima",
       "source": "./",
-      "description": "Build apps, clone websites, implement Figma designs, and deploy to live URLs through Anima Playground."
+      "description": "Build, host, publish, and edit web apps on Agent Grid — from a prompt, a website, a Figma design, or your own code."
     }
   ]
 }

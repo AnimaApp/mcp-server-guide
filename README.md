@@ -1,22 +1,18 @@
-# Anima MCP Server Guide
+# Agent Grid MCP Server Guide
 
-The Anima MCP server connects your AI coding assistant directly to Anima Playground, Figma designs, and your team's design system. It bridges the gap between PM prototypes and production code.
+Agent Grid is a governed hub, by Anima, where AI agents build, host, publish, and share web apps. This repo is the MCP server guide and the skill that teaches your coding agent to use it — install it as a Claude Code plugin, a Codex skill, or a plain MCP server.
 
-For the complete set of Anima MCP server docs, see our [help documentation](https://docs.animaapp.com/docs/integrations/anima-mcp).
+Agent Grid lives at **[app.agentgrid.io](https://app.agentgrid.io/)**. For the full docs, see our [help documentation](https://docs.animaapp.com/docs/integrations/anima-mcp).
 
-## Features
+## What your agent can do
 
-- **Handoff Anima playgrounds to coding agents**
+- **Build an app from a prompt, a website, or a Figma design** — describe it, clone a URL, or hand over Figma frames, and get back a running app at a live URL.
+- **Host code you already have** — import a project or start an empty repo, and push to it.
+- **Edit any artifact over git** — every artifact is a real git repository; clone, commit, push.
+- **Publish to a live public URL** — and take it down again.
+- **Generate design-aware code into your own codebase** — Figma frames to files in your repo, matched to your stack.
 
-  Pull code from any Anima Playground into your local environment. The AI downloads the project, reads relevant files, understands patterns, and implements an adapted version in your codebase.
-
-- **Figma to code**
-
-  Convert Figma designs directly to code through your AI coding agent with high fidelity. Your agent uses Anima MCP to fetch the design and generate production-ready code.
-
-- **Design system access (Enterprise)**
-
-  Reference your team's design system directly when implementing features. The AI pulls your design system docs and builds using your team's established components and patterns.
+Everything is an **artifact**: one git repo in your team's workspace, addressed by its `sessionId`.
 
 ## Quick start: Claude Code plugin
 
@@ -25,219 +21,177 @@ For the complete set of Anima MCP server docs, see our [help documentation](http
 /plugin install anima@mcp-server-guide
 ```
 
-This installs the Anima plugin, which auto-configures the MCP server and adds the Anima skill. Authenticate when prompted. That's it.
+This configures the MCP server and installs the skill. Authenticate when prompted. That's it.
 
-For other editors (VS Code, Cursor), see the manual setup below.
-
-## Installation & Setup
+## Installation & setup
 
 ### Requirements
 
-- **MCP-compatible AI coding tool:** Claude Code, Cursor, VS Code, or other tools that support the Model Context Protocol
-- **Anima account:** You need access to Anima Playground to share and download projects
+- **An MCP-capable AI coding tool** — Claude Code, Codex, Cursor, VS Code, or anything speaking streamable HTTP
+- **An Agent Grid account**
 
-### Step 1: Set up your MCP client
+**Server URL:** `https://api.agentgrid.io/v1/mcp` · **Transport:** streamable HTTP
 
-Different MCP clients require slightly different setups. Follow the instructions below for your specific client.
+### Claude Code (manual)
 
-#### Claude Code
-
-1. Open your terminal (not inside Claude Code) and run:
+1. In your terminal (not inside Claude Code):
 
 ```bash
-claude mcp add --transport http anima https://public-api.animaapp.com/v1/mcp
+claude mcp add --transport http anima https://api.agentgrid.io/v1/mcp
 ```
 
 2. Restart Claude Code
-3. Enter `/mcp` to open the MCP menu
-4. Select Anima and authenticate. This opens a browser window to sign in with your Anima account.
-5. (Optional) Connect your Figma account during authentication to enable the Figma URL flow
+3. Run `/mcp`, select **anima**, and authenticate in the browser
+4. (Optional) Connect Figma during authentication to enable the Figma flows
 
-Use these commands to manage servers:
+Manage servers with `claude mcp list`, `claude mcp get anima`, `claude mcp remove anima`. See [Anthropic's MCP documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/tutorials#set-up-model-context-protocol-mcp).
 
-- List all configured servers: `claude mcp list`
-- Get details for a specific server: `claude mcp get anima`
-- Remove a server: `claude mcp remove anima`
-
-For more information, see [Anthropic's official documentation](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/tutorials#set-up-model-context-protocol-mcp).
-
-#### OpenAI Codex
-
-1. Open your terminal and run:
+### OpenAI Codex
 
 ```bash
-codex mcp add anima --url https://public-api.animaapp.com/v1/mcp
+codex mcp add anima --url https://api.agentgrid.io/v1/mcp
 ```
 
-Or add it directly to your `~/.codex/config.toml`:
+Or in `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.anima]
-url = "https://public-api.animaapp.com/v1/mcp"
+url = "https://api.agentgrid.io/v1/mcp"
 ```
 
-2. Restart Codex
-3. Authenticate when prompted
-
-To install the Anima skill (recommended):
+Then install the skill (recommended):
 
 ```bash
 codex skill install AnimaApp/mcp-server-guide/skills/anima
 ```
 
-For more information, see [OpenAI's Codex MCP documentation](https://developers.openai.com/codex/mcp).
+See [OpenAI's Codex MCP documentation](https://developers.openai.com/codex/mcp).
 
-#### VS Code
+### VS Code
 
-1. Use the shortcut `Cmd Shift P` (Mac) or `Ctrl Shift P` (Windows) to search for `MCP:Add Server`
-2. Select `HTTP`
-3. Paste the server URL: `https://public-api.animaapp.com/v1/mcp`
-4. When prompted for a server ID, enter `anima`
-5. Select whether to add this server globally or only for the current workspace
-
-Your `mcp.json` will look like:
+1. `Cmd Shift P` / `Ctrl Shift P` → `MCP: Add Server`
+2. Select **HTTP**
+3. URL: `https://api.agentgrid.io/v1/mcp`
+4. Server ID: `anima`
+5. Choose global or workspace scope
 
 ```json
 {
   "servers": {
     "anima": {
       "type": "http",
-      "url": "https://public-api.animaapp.com/v1/mcp"
+      "url": "https://api.agentgrid.io/v1/mcp"
     }
   }
 }
 ```
 
 > [!NOTE]
-> You must have [GitHub Copilot](https://github.com/features/copilot) enabled on your account to use MCP in VS Code.
->
-> For more information, see [VS Code's official documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
+> MCP in VS Code requires [GitHub Copilot](https://github.com/features/copilot). See [VS Code's documentation](https://code.visualstudio.com/docs/copilot/chat/mcp-servers).
 
-#### Cursor
+### Cursor
 
-1. Open **Cursor > Settings > Cursor Settings**
-2. Go to the **MCP** tab
-3. Click **+ Add new global MCP server**
-4. Enter the following configuration and save:
+**Cursor > Settings > Cursor Settings > MCP > + Add new global MCP server**:
 
 ```json
 {
   "mcpServers": {
     "anima": {
-      "url": "https://public-api.animaapp.com/v1/mcp"
+      "url": "https://api.agentgrid.io/v1/mcp"
     }
   }
 }
 ```
 
-5. After saving, you'll see "anima" appear under Installed MCP Servers with "Needs authentication"
-6. Click **Connect** to authenticate. This opens a browser window to sign in with your Anima account.
-7. (Optional) Connect your Figma account during authentication to enable the Figma URL flow
+Click **Connect** to authenticate. See [Cursor's documentation](https://docs.cursor.com/context/model-context-protocol).
 
-For more information, see [Cursor's official documentation](https://docs.cursor.com/context/model-context-protocol).
-
-#### Other editors
-
-Other code editors and tools that support Streamable HTTP can also connect to the Anima MCP server.
-
-If you're using a different editor or tool, check its documentation to confirm it supports Streamable HTTP based communication. If it does, you can manually add the Anima MCP server using this configuration:
+### Any other client
 
 ```json
 {
   "mcpServers": {
     "anima": {
-      "url": "https://public-api.animaapp.com/v1/mcp"
+      "url": "https://api.agentgrid.io/v1/mcp"
     }
   }
 }
 ```
 
-### Step 2: Authenticate
+### No MCP? Use the CLI
 
-After adding the MCP server, authenticate with your Anima account:
+The [Anima CLI](https://www.npmjs.com/package/@animaapp/cli) runs the same tools from a shell — no MCP server to configure:
 
-1. Your MCP client will prompt you to authenticate
-2. A browser window opens to sign in with your Anima account
-3. (Optional) Connect your Figma account during authentication to enable the Figma URL flow
+```bash
+npx @animaapp/cli@latest login
+npx @animaapp/cli@latest create -t p2c -p "SaaS dashboard with sidebar and analytics"
+```
 
-## Prompting your MCP client
+## Prompting your agent
 
-Once connected, you can prompt your MCP client to access Anima Playground projects and Figma designs.
+**Build something new**
 
-### Handoff from Anima Playground
+> "Build me a SaaS analytics dashboard with a sidebar, KPI cards, and an activity feed."
 
-Copy the link to an Anima Playground and prompt your agent:
+Your agent creates an artifact, waits for the build, and hands back a live preview URL. Ask for variants and it can generate several in parallel to compare.
 
-> "Implement the welcome screen from this playground: https://dev.animaapp.com/chat/xyz"
+**Clone a site or implement a Figma design as a live app**
 
-**What happens:**
+> "Clone stripe.com/payments into an app."
+> "Turn this Figma frame into a working site: https://figma.com/design/..."
 
-1. AI downloads the playground project
-2. AI reads relevant files and understands patterns
-3. AI implements an adapted version in your codebase
+**Edit an existing artifact**
 
-> [!TIP]
-> Be specific about which feature you want. The AI will find the relevant files and adapt the code to fit your project's patterns.
+> "The header on https://app.agentgrid.io/artifacts/xyz is broken on mobile — fix it."
 
-### Figma to code
+The agent clones the artifact's git repo, fixes it, and pushes. Content changes always go through git.
 
-Copy a Figma design link and prompt your agent:
+**Implement a Figma design in your own codebase**
 
-> "Implement this Figma design using Anima MCP: https://figma.com/design/..."
+> "Implement this Figma design in my project: https://figma.com/design/..."
 
-Your AI agent will use Anima MCP to fetch the design and generate production-ready code in your codebase.
+The agent generates code matched to your stack and uses the returned design snapshots as visual reference.
+
+**Publish**
+
+> "Publish it."
+
+Publishing makes an app public to the world — it isn't needed just to share, since the artifact URL is already viewable.
 
 ### Design system access (Enterprise)
 
-Reference your team's design system directly when implementing features:
+> "Implement a login form following our design system, using this Figma URL: ..."
 
-> "Implement a login form following our design system, use Anima MCP and figma url: ..."
-
-The AI pulls your design system docs and builds using your team's established components and patterns.
-
-**Getting started:** Design system setup is done with our team. [Contact us](https://anima-forms.typeform.com/to/gDr77Woe?utm_source=content&utm_medium=docs&utm_campaign=mcp-docs&utm_content=mcp-docs) to get it configured.
-
-## Troubleshooting
-
-### Can't access playground
-
-Make sure you have access to the playground. Private playgrounds require team membership or direct sharing.
-
-### MCP not recognized
-
-Verify that Anima MCP is properly installed and configured in your AI coding tool. Check that your Anima authentication is set up correctly.
-
-### Authentication issues
-
-1. Try removing and re-adding the MCP server
-2. Clear your browser cookies for animaapp.com
-3. Restart your MCP client
+Design system setup is done with our team. [Contact us](https://anima-forms.typeform.com/to/gDr77Woe?utm_source=content&utm_medium=docs&utm_campaign=mcp-docs&utm_content=mcp-docs) to get it configured.
 
 ## Best practices
 
-### Be specific in your prompts
+**Describe intent, not CSS.** Agent Grid is design-aware; hex values and pixel dimensions in a prompt override that and produce generic results. Say what it's for, who it's for, and the 3–5 features that matter.
 
-Instead of: "Implement this playground"
-Try: "Implement the login form component from this playground, using my existing Button and Input components"
+**Be specific when implementing.** "Implement the login form using our existing Button and Input components from `src/components/ui`" beats "implement this design".
 
-### Reference existing patterns
+**Break down large designs.** Header first, then the card grid, then the footer. Focused requests are more accurate.
 
-When implementing from Anima, tell the AI about your codebase patterns:
+## Troubleshooting
 
-> "Implement this design using our existing components from src/components/ui and follow our Tailwind styling patterns"
+Common issues — async generation, create-type validation, git token expiry, publish semantics — are covered in [the skill's troubleshooting reference](skills/anima/references/troubleshooting.md).
 
-### Break down large designs
+**MCP not recognized:** confirm the server is configured in your tool and that authentication completed.
+**Authentication issues:** remove and re-add the server, clear cookies, restart your client.
 
-For complex playgrounds or Figma files, request specific sections:
+## What's in this repo
 
-1. "First, implement just the header component"
-2. "Now implement the card grid layout"
-3. "Finally, add the footer"
-
-This helps keep implementations focused and accurate.
+| Path | Purpose |
+|---|---|
+| `skills/anima/SKILL.md` | The skill your agent reads |
+| `skills/anima/references/` | Tool reference, setup, git workflow, examples, troubleshooting |
+| `.claude-plugin/` | Claude Code plugin and marketplace manifests |
+| `.mcp.json` | MCP server the plugin installs |
+| `server.json` | MCP Registry entry |
+| `anima/SKILL.md` | Mirror of the skill, kept in sync by CI |
 
 ## Additional resources
 
-- [Anima MCP Documentation](https://docs.animaapp.com/docs/integrations/anima-mcp)
-- [Anima Playground](https://playground.animaapp.com)
+- [Agent Grid](https://app.agentgrid.io/)
+- [Anima MCP documentation](https://docs.animaapp.com/docs/integrations/anima-mcp)
+- [Anima CLI](https://www.npmjs.com/package/@animaapp/cli)
 - [Contact us for Enterprise features](https://anima-forms.typeform.com/to/gDr77Woe)
