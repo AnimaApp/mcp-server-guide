@@ -37,7 +37,14 @@ Same for `uiLibrary`: `p2c` supports none, `l2c` only `shadcn`, `f2c` takes `mui
 
 ## I got HTML when I wanted React
 
-`framework` **defaults to `html`** over MCP — pass `framework: "react"` explicitly. (The CLI's `codegen` command defaults to `react` instead, which is easy to trip over. Always be explicit.)
+The default depends on the tool, not on whether you called it over MCP or the CLI — both surfaces agree:
+
+| Tool | Default `framework` |
+|---|---|
+| `artifact-create` / `anima create` | `html` |
+| `codegen-figma_to_code` / `anima codegen` | `react` |
+
+So creating an artifact gives you HTML unless you ask for React. Pass `framework` explicitly and the difference stops mattering.
 
 ## "`uiLibrary` is only applicable when framework is react"
 
