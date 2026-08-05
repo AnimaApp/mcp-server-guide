@@ -175,6 +175,6 @@ Requires the `X-Figma-Token` header.
 
 **The response is not just code.** Download and view `snapshotsUrls` as visual ground truth, follow `guidelines`, map `data-variant` attributes to your props, and download `assets` to your `assetsBaseUrl` — otherwise the generated references break.
 
-The whole result arrives as a **single JSON text block**; snapshots are URLs, never inline image data. Those URLs have no file extension and may serve JPEG or PNG, so read the media type from the `Content-Type` header rather than assuming `image/png`.
+The whole result arrives as a **single JSON text block** — snapshots are URLs, never inline image data. Each one is a Figma CDN URL (`figma-alpha-api.s3.…/images/<uuid>`) with no file extension, serving **JPEG** at the design's full resolution; a single frame can exceed 1 MB. Read the media type from the `Content-Type` header when re-embedding — never hardcode `image/png`.
 
 **`files` is filtered.** Boilerplate is removed before the response is built: `package.json`, `tsconfig*.json`, `vite.config.*`, `src/index.*`, `src/main.*`, `*.d.ts`, `src/lib/utils.*`, and everything under `src/components/` — where extracted and shadcn components live. Expect a partial tree, not a runnable project.

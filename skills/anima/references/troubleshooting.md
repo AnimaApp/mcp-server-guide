@@ -70,6 +70,14 @@ A user may have at most **3 active jobs** at once, counted across generation, co
 
 `empty` isn't a bare repo — it has an initial commit with a seed `README.md`. Clone the artifact and commit on top of that history instead of pushing an unrelated local history.
 
+## The model rejected a snapshot image
+
+You re-embedded it under the wrong media type. Snapshots are **JPEG**; declaring `image/png` over JPEG bytes is rejected outright by APIs that validate the two against each other. The URLs are extension-less by design (Figma's CDN format), so the `Content-Type` header on the download is the authority — use it rather than guessing from the URL.
+
+## Snapshots are bigger than expected
+
+They're full-resolution renders from Figma's CDN, not thumbnails — over 1 MB for a single frame is normal. Download them once and reuse them rather than re-fetching per step.
+
 ## Components are missing from the codegen response
 
 Expected. `codegen-figma_to_code` filters boilerplate out of `files`: config files, entry points, `*.d.ts`, `src/lib/utils.*`, and everything under `src/components/` — which is exactly where extracted and shadcn components live. Generation did not fail. Use the files you received plus `guidelines` and the snapshots.
