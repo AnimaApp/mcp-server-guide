@@ -141,7 +141,7 @@ Clones an artifact into a new, independent one in your team's Default workspace.
 | `sessionId` | yes | string | Source, must be in your current team |
 | `name` | no | string | Defaults to `"<source name> (Copy)"` |
 
-Copies code, assets, and supported database content. Does **not** copy chat or custom domains. If the database can't be copied, the whole duplication fails. Cross-team duplication is not supported in MCP v1.
+Copies code, assets, and supported database content. Does **not** copy chat or custom domains. If the database can't be copied, the whole duplication fails. Duplicating across teams is not currently supported.
 
 > **Not idempotent.** On a timeout or lost response, check `workspace-list_artifacts` before retrying.
 
