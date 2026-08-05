@@ -112,7 +112,7 @@ recent activity feed. Professional but approachable. Think Linear meets Stripe.
 | `l2c` | `tailwind`, `inline_styles`, `vanilla_css` | `shadcn` |
 | `f2c` | `tailwind`, `plain_css`, `css_modules`, `inline_styles` | `mui`, `antd`, `shadcn`, `clean_react` |
 
-`language` (`typescript` / `javascript`) applies only when `framework` is `react`; `l2c` output is always TypeScript. `guidelines` is `p2c` only. `name` is ignored by generation types — they name themselves from the content; rename afterwards with `artifact-update_metadata`.
+`language` (`typescript` / `javascript`) applies only when `framework` is `react`, and only to `l2c` and `f2c` — `p2c` accepts it but discards it. `l2c` with `framework: "react"` is always TypeScript regardless of what you pass; with the default `html` framework there is no language at all. `guidelines` is `p2c` only. `name` is ignored by generation types — they name themselves from the content; rename afterwards with `artifact-update_metadata`.
 
 ### Figma URLs
 
@@ -129,8 +129,7 @@ artifact-create(
   type: "p2c",
   prompt: "SaaS analytics dashboard for a B2B product team. Clean, minimal feel. Sidebar navigation, KPI cards, a usage trend chart, and a recent activity feed.",
   framework: "react",
-  styling: "tailwind",
-  language: "typescript"
+  styling: "tailwind"
 )
 → { status: "generating", sessionId: "mr25vsjppVtbMx", previewUrl, playgroundUrl }
 
@@ -138,18 +137,22 @@ artifact-status(sessionId: "mr25vsjppVtbMx", wait: true)
 → { status: "ready", playgroundUrl, previewUrl }
 ```
 
-**CLI** (waits for you — no separate status call):
+**CLI:**
 ```bash
 anima create -t p2c -p "SaaS analytics dashboard for a B2B product team..." \
   --framework react --guidelines "Dark mode, accessible contrast"
 
-anima create -t l2c -u https://stripe.com/payments --ui-library shadcn
+anima create -t l2c -u https://stripe.com/payments --framework react --ui-library shadcn
 
 anima create -t f2c --file-key "https://figma.com/design/abc123/My-File?node-id=42-15" \
-  --ui-library shadcn
+  --framework react --ui-library shadcn
 ```
 
 The CLI parses full Figma URLs and normalizes node IDs for you.
+
+**Pass `--framework react` whenever you pass `--ui-library` or `--language`.** The CLI defaults generation to `html`, and the server rejects both fields unless the framework is `react`.
+
+> **The CLI does not wait for generation.** `anima create` prints "Artifact created!" as soon as the artifact is registered — while p2c/l2c/f2c are still building — and there is no `anima status` command. To know when the app is actually ready, use the MCP `artifact-status(wait: true)` cycle. Own-code types (`empty` / `import`) are genuinely finished when the command returns.
 
 ### Explore mode: parallel variants
 
@@ -162,6 +165,8 @@ When the user says "build me X" or "prototype X", generate several interpretatio
 
 Because they run in parallel, three variants cost roughly the wall-clock of one.
 
+> **Three is the ceiling, not a suggestion.** A single user may have at most **3 active jobs** at once, counted across generation, codegen, and deploy. Three variants sit exactly on that cap, so a concurrent publish or a leftover job makes one variant fail with `Too many concurrent jobs`. If you see that error, wait for one to finish and retry it — don't reduce the request to two silently.
+
 ---
 
 ## Job B: Bring your own code
@@ -170,7 +175,7 @@ Two types, both **ready immediately** — no status polling:
 
 **`import`** — your code becomes the first commit. Pass **exactly one** transport:
 
-- `files` — a `{path: content}` map of UTF-8 text, up to roughly **100 KB** total. Text only.
+- `files` — a `{path: content}` map of UTF-8 text. Text only, capped at **1000 files** and **10 MB** decoded. (The tool description says "roughly 100 KB"; the enforced limits are the ones above, and the file count is the one that usually bites.)
 - `zipUploadId` — for binaries or anything larger. Three steps:
   1. `artifact-get_zip_upload_url()` → `{ zipUploadId, uploadUrl }`
   2. HTTP `PUT` the zip to `uploadUrl` (treat it as a secret)
@@ -178,9 +183,11 @@ Two types, both **ready immediately** — no status polling:
 
   Zip limits: **50 MB max**, source/config/assets only — **no `node_modules`, no build output**. Shell and executable files are skipped and reported back.
 
-**`empty`** — an empty git repo you push to. `framework` is **required** here (there are no files to detect it from); declare `react` if you intend to push React code.
+**`empty`** — a repo you push your own code to. `framework` is **required** here (there are no files to detect it from); declare `react` if you intend to push React code.
 
-Both return `gitRemoteUrl` **and a read-write git token in the same response** — so do **not** call `artifact-get_git_token` after creating. Just clone and push.
+> It is not literally empty: `empty` lands an initial commit containing a seed `README.md`. **Clone it and commit on top** — pushing an unrelated local history is rejected as a non-fast-forward.
+
+Both normally return `gitRemoteUrl` **with a read-write git token in the same response** — when it's there, clone it directly instead of calling `artifact-get_git_token`. If the response has no `gitRemoteUrl` (the mint can be skipped or fail), follow its `nextSteps` and call `artifact-get_git_token`.
 
 ```bash
 anima create -t import --from ./my-project --name "My project"
@@ -230,6 +237,7 @@ Don't know the `sessionId`? `workspace-list_artifacts()` (no parameters) lists y
 | Tailwind, plain CSS | `styling`: `tailwind` / `plain_css` |
 | TypeScript | `language`: `typescript` |
 | MUI, Ant Design, shadcn | `uiLibrary`: `mui` / `antd` / `shadcn` |
+| No UI library | `uiLibrary`: `clean_react`, or omit it |
 
 Requires the `X-Figma-Token` header (a Figma personal access token).
 
@@ -260,6 +268,8 @@ anima codegen --file-key "https://figma.com/design/abc123/My-File?node-id=42-15"
 6. Compare your finished implementation against the snapshot.
 7. Download everything in `assets` and place it at your `assetsBaseUrl` path, or the generated references will 404.
 
+**`files` is filtered, not a full project.** Boilerplate is stripped before you see it: `package.json`, `tsconfig*.json`, `vite.config.*`, entry points (`src/index.*`, `src/main.*`), `*.d.ts`, `src/lib/utils.*`, and **everything under `src/components/`**. Extracted and shadcn components live in that last path, so don't expect them in the response or conclude the generation failed — work from the files you do get, plus `guidelines` and the snapshots.
+
 ---
 
 ## Job E: Publish
@@ -289,7 +299,7 @@ anima unpublish <sessionId>
 
 > **Not idempotent.** If a duplicate call times out or its response is lost, call `workspace-list_artifacts` to check before retrying — the first call may have already created the copy.
 
-**`workspace-list_artifacts()`** — no parameters; lists your team's artifacts with their session ids.
+**`workspace-list_artifacts()`** — no parameters; lists your team's artifacts. App rows carry a `sessionId` (what the `artifact-*` tools need); `markdown` and `asset` rows carry only an `id`. The result may set `truncated`, and an agent without `read` access gets an empty list rather than an error.
 
 ---
 
@@ -297,7 +307,7 @@ anima unpublish <sessionId>
 
 | Action | CLI | MCP |
 |---|---|---|
-| Generate | `anima create -t p2c\|l2c\|f2c ...` | `artifact-create` + `artifact-status` |
+| Generate | `anima create -t p2c\|l2c\|f2c ...` (does not await completion) | `artifact-create` + `artifact-status` |
 | Import own code | `anima create -t import --from <path>` | `artifact-get_zip_upload_url` + `artifact-create` |
 | Empty repo | `anima create -t empty --framework <fw>` | `artifact-create` |
 | Edit content | `anima get-git-token <url\|id>` | `artifact-get_git_token` |
@@ -307,7 +317,9 @@ anima unpublish <sessionId>
 | Publish / unpublish | `anima publish\|unpublish <id>` | `artifact-publish` / `artifact-unpublish` |
 | Figma → code files | `anima codegen --file-key <key> -o <dir>` | `codegen-figma_to_code` |
 
-**Which to use:** the CLI needs no MCP setup, works headless, and handles the status wait for you. The MCP server is the better fit when it's already connected to your client. Note the CLI's `codegen` defaults to `--framework react` while the MCP tool defaults to `html` — pass it explicitly and you never have to remember that.
+**Which to use:** the CLI needs no MCP setup and works headless, so it's the better fit for own-code flows (`empty`, `import`) and one-shot codegen. **For generation (p2c/l2c/f2c), prefer MCP** — only `artifact-status` can tell you the app finished, and the CLI cannot call it.
+
+Watch the framework defaults, which differ by tool: `artifact-create` defaults to **`html`** (both over MCP and in the CLI), while `codegen-figma_to_code` and `anima codegen` default to **`react`**. Pass `--framework` / `framework` explicitly and you never have to remember which is which.
 
 ---
 

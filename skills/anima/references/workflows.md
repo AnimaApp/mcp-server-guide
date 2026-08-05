@@ -9,7 +9,7 @@ Three creative angles, same core idea. All generate concurrently, so it costs ro
    - **V2** — "SaaS analytics dashboard for a data-driven startup. Dark theme, bold accent colors, high information density. Top navigation, real-time metrics grid, interactive data visualization. Feels like mission control."
    - **V3** — "SaaS analytics dashboard inspired by Linear's design language. Quiet, monochrome with one accent. Icon sidebar, compact metric tiles, activity feed, usage heatmap. A tool you'd use daily without fatigue."
 
-2. Fire three `artifact-create(type: "p2c", framework: "react", styling: "tailwind")` calls **in parallel**.
+2. Fire three `artifact-create(type: "p2c", framework: "react", styling: "tailwind")` calls **in parallel**. Three is the per-user cap on active jobs (shared with codegen and deploy) — if one comes back `Too many concurrent jobs`, wait for another to finish and retry it.
 
 3. Each returns `{ status: "generating", sessionId }`. For each, run `artifact-status(sessionId, wait: true)` until the status leaves `generating`.
 
@@ -77,14 +77,14 @@ artifact-create(type: "import", name: "My project",
   files: { "index.html": "...", "styles.css": "..." })
 ```
 
-Anything with binaries or over ~100 KB:
+Anything with binaries, over 1000 files, or over 10 MB:
 ```
 artifact-get_zip_upload_url() → { zipUploadId, uploadUrl }
 # PUT the zip to uploadUrl (≤50MB, no node_modules)
 artifact-create(type: "import", zipUploadId: "...", name: "My project")
 ```
 
-Or in one step from the CLI, which handles the zip for you:
+Or in one step from the CLI, which picks the transport for you — it sends files inline and switches to the zip flow automatically when the project contains a binary file, exceeds 1000 files, or exceeds 10 MB:
 
 ```bash
 anima create -t import --from ./my-project --name "My project"

@@ -41,17 +41,19 @@ git push
 
 ## After creating an artifact
 
-`artifact-create` with type `empty` or `import` already returns a `gitRemoteUrl` with a read-write token in the same response. Use it directly — calling `artifact-get_git_token` right after a create is a wasted round trip.
+`artifact-create` with type `empty` or `import` normally returns a `gitRemoteUrl` with a read-write token in the same response. Use it directly — calling `artifact-get_git_token` right after a create is usually a wasted round trip. If the create response has no `gitRemoteUrl` (the mint is skipped for some clients and can fail), its `nextSteps` will tell you to call `artifact-get_git_token`; do that.
 
 ## Choosing a starting point
 
 | Situation | Type | Then |
 |---|---|---|
 | You have code on disk | `import` (`--from`) | Clone the returned remote to keep working |
-| You want to push from an existing local repo | `empty` | Add the remote and push |
+| You want to start a repo and push to it | `empty` | **Clone it first**, then commit on top |
 | You want Agent Grid to write the first version | `p2c` / `l2c` / `f2c` | Wait for `ready`, then `artifact-get_git_token` |
 
 For `empty`, `framework` is required — declare `react` if you'll push React code, `html` otherwise.
+
+> `empty` is not a bare repo: it ships an initial commit with a seed `README.md`. Clone it and build on that history. Pushing an unrelated local history is rejected as a non-fast-forward — if you must graft an existing local repo on, you have to reconcile the histories first.
 
 ## Finding the artifact
 

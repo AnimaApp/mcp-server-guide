@@ -49,9 +49,9 @@ No browser means no device approval, so supply a token directly:
 
 | Variable | Purpose |
 |---|---|
-| `ANIMA_API_TOKEN` | Agent Grid access token — the credential |
+| `ANIMA_API_TOKEN` | Agent Grid access token — the credential. Takes precedence over stored credentials |
 | `ANIMA_API_URL` | API base URL; defaults to `https://api.agentgrid.io` |
-| `ANIMA_TEAM_ID` | Act within a specific team |
+| `ANIMA_TEAM_ID` | Act within a specific team. **Only read alongside `ANIMA_API_TOKEN`** — after `anima login`, the team comes from the stored credential and this is ignored |
 | `FIGMA_TOKEN` | Figma personal access token, for `f2c` and codegen |
 
 For MCP clients, the same token goes in an `Authorization: Bearer <token>` header against `https://api.agentgrid.io/v1/mcp`.
@@ -62,4 +62,4 @@ Figma flows (`artifact-create` type `f2c`, and `codegen-figma_to_code`) need a F
 
 ## Pointing at another environment
 
-Every CLI command takes `--api-url <url>` to override the default, which is also how you target staging or a local API.
+Every CLI command except the `config` subcommands takes `--api-url <url>` to override the default, which is also how you target staging or a local API.

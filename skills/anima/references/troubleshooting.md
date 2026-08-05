@@ -49,7 +49,23 @@ There are no files to detect it from. Declare `react` if you'll push React code,
 
 ## "type import requires exactly one of files or zipUploadId"
 
-Pass one, never both. `files` is for text under ~100 KB; anything bigger or binary goes through `artifact-get_zip_upload_url`. For a repo with no starting content, use type `empty` instead.
+Pass one, never both. `files` is for text projects (enforced caps: 1000 files, 10 MB decoded); binaries or anything larger go through `artifact-get_zip_upload_url`. For a repo you'll push to yourself, use type `empty` instead.
+
+## "files contains N entries (max 1000)" / "files totals NMB (max 10MB)"
+
+You hit the inline transport's real caps. Switch to the zip flow via `artifact-get_zip_upload_url`. Note the tool description's "roughly 100 KB" is guidance, not the enforced limit — the file count is usually what trips first.
+
+## "Too many concurrent jobs"
+
+A user may have at most **3 active jobs** at once, counted across generation, codegen, and deploy. Generating three variants in parallel sits exactly on that cap, so a concurrent publish or a leftover job pushes you over. Wait for one to finish and retry the failed call — don't silently drop a variant.
+
+## Push to an `empty` artifact is rejected as non-fast-forward
+
+`empty` isn't a bare repo — it has an initial commit with a seed `README.md`. Clone the artifact and commit on top of that history instead of pushing an unrelated local history.
+
+## Components are missing from the codegen response
+
+Expected. `codegen-figma_to_code` filters boilerplate out of `files`: config files, entry points, `*.d.ts`, `src/lib/utils.*`, and everything under `src/components/` — which is exactly where extracted and shadcn components live. Generation did not fail. Use the files you received plus `guidelines` and the snapshots.
 
 ## Zip import rejected or files missing
 
