@@ -260,7 +260,7 @@ anima codegen --file-key "https://figma.com/design/abc123/My-File?node-id=42-15"
 
 **After the call, you are not done.** The response carries more than code:
 
-1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design.
+1. **Download the images in `snapshotsUrls`** and actually look at them — they're the visual ground truth for the design. They may be JPEG or PNG and the URLs carry no file extension, so take the media type from the response's `Content-Type` header. Never assume `image/png` — re-embedding JPEG bytes under a PNG media type is rejected outright by some model APIs.
 2. Implement using **both** the generated code and the snapshots.
 3. Map `data-variant` attributes in the generated components onto your component props.
 4. Pull CSS variables out of the generated styles for exact colors.

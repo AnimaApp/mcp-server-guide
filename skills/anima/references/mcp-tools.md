@@ -175,4 +175,6 @@ Requires the `X-Figma-Token` header.
 
 **The response is not just code.** Download and view `snapshotsUrls` as visual ground truth, follow `guidelines`, map `data-variant` attributes to your props, and download `assets` to your `assetsBaseUrl` — otherwise the generated references break.
 
+The whole result arrives as a **single JSON text block**; snapshots are URLs, never inline image data. Those URLs have no file extension and may serve JPEG or PNG, so read the media type from the `Content-Type` header rather than assuming `image/png`.
+
 **`files` is filtered.** Boilerplate is removed before the response is built: `package.json`, `tsconfig*.json`, `vite.config.*`, `src/index.*`, `src/main.*`, `*.d.ts`, `src/lib/utils.*`, and everything under `src/components/` — where extracted and shadcn components live. Expect a partial tree, not a runnable project.
