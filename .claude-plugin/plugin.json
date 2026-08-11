@@ -1,6 +1,6 @@
 {
   "name": "anima",
-  "description": "Build, host, publish, and edit web apps on Agent Grid — from a prompt, a website, a Figma design, or your own code.",
+  "description": "Create, host, publish, and edit your own code on Agent Grid.",
   "version": "2.0.0",
   "author": {
     "name": "Anima"

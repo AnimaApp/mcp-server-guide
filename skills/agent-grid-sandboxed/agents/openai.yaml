@@ -1,0 +1,17 @@
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "anima"
+      description: "Agent Grid MCP server for sandboxed artifact work"
+      transport: "streamable_http"
+      url: "https://api.agentgrid.io/v1/mcp"
+
+interface:
+  display_name: "Agent Grid Sandboxed"
+  short_description: "Use local text files with Agent Grid over MCP"
+  icon_small: "./assets/anima-icon.svg"
+  brand_color: "#FF6250"
+  default_prompt: ""
+
+policy:
+  allow_implicit_invocation: true
