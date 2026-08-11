@@ -1,6 +1,6 @@
 # Agent Grid MCP Server Guide
 
-Agent Grid is a governed hub, by Anima, where AI agents build, host, publish, and share web apps. This repo includes two skills for selected own-code features. Install them as a Claude Code plugin or Codex skills.
+Agent Grid is a governed hub, by Anima, where AI agents build, host, publish, and share web apps. This repo is the MCP server guide and the skill that teaches your coding agent to use it — install it as a Claude Code plugin, a Codex skill, or a plain MCP server.
 
 Agent Grid lives at **[app.agentgrid.io](https://app.agentgrid.io/)**. For the full docs, see our [help documentation](https://docs.animaapp.com/docs/integrations/anima-mcp).
 
@@ -59,17 +59,11 @@ Or in `~/.codex/config.toml`:
 url = "https://api.agentgrid.io/v1/mcp"
 ```
 
-Then install one skill that matches your agent:
+Then install the skill (recommended):
 
 ```bash
-# Full agent
-codex skill install AnimaApp/mcp-server-guide/skills/agent-grid-full
-
-# Sandboxed agent
-codex skill install AnimaApp/mcp-server-guide/skills/agent-grid-sandboxed
+codex skill install AnimaApp/mcp-server-guide/skills/anima
 ```
-
-Use `agent-grid-full` with a shell, network access, and Git. Use `agent-grid-sandboxed` without these capabilities.
 
 See [OpenAI's Codex MCP documentation](https://developers.openai.com/codex/mcp).
 
@@ -149,7 +143,7 @@ Your agent creates an artifact, waits for the build, and hands back a live previ
 
 > "The header on https://app.agentgrid.io/artifacts/xyz is broken on mobile — fix it."
 
-The full skill uses Git. The sandboxed skill uses `artifact-explore` and `artifact-edit` over MCP.
+The agent clones the artifact's git repo, fixes it, and pushes. Content changes always go through git.
 
 **Implement a Figma design in your own codebase**
 
@@ -179,7 +173,7 @@ Design system setup is done with our team. [Contact us](https://anima-forms.type
 
 ## Troubleshooting
 
-See the troubleshooting references for [full agents](skills/agent-grid-full/references/troubleshooting.md) and [sandboxed agents](skills/agent-grid-sandboxed/references/troubleshooting.md).
+Common issues — async generation, create-type validation, git token expiry, publish semantics — are covered in [the skill's troubleshooting reference](skills/anima/references/troubleshooting.md).
 
 **MCP not recognized:** confirm the server is configured in your tool and that authentication completed.
 **Authentication issues:** remove and re-add the server, clear cookies, restart your client.
@@ -188,13 +182,12 @@ See the troubleshooting references for [full agents](skills/agent-grid-full/refe
 
 | Path | Purpose |
 |---|---|
-| `skills/agent-grid-full/` | Skill and references for agents with Git |
-| `skills/agent-grid-sandboxed/` | Skill and references for sandboxed agents |
+| `skills/anima/SKILL.md` | The skill your agent reads |
+| `skills/anima/references/` | Tool reference, setup, git workflow, examples, troubleshooting |
 | `.claude-plugin/` | Claude Code plugin and marketplace manifests |
 | `.mcp.json` | MCP server the plugin installs |
 | `server.json` | MCP Registry entry |
-| `agent-grid-full/SKILL.md` | Public mirror of the full skill |
-| `agent-grid-sandboxed/SKILL.md` | Public mirror of the sandboxed skill |
+| `anima/SKILL.md` | Mirror of the skill, kept in sync by CI |
 
 ## Additional resources
 

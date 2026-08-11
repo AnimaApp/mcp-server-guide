@@ -13,7 +13,7 @@ Use this schema for the local-files flow:
 | Parameter | Type | Rule |
 |---|---|---|
 | `type` | `"import"` | Required. |
-| `files` | `{ "<path>": "<UTF-8 text>" }` | Required for this flow. Do not send `zipUploadId`. |
+| `files` | `{ "<path>": "<UTF-8 text>" }` | Required. |
 | `artifactType` | `"app" \| "markdown"` | Optional. The default is `"app"`. |
 | `framework` | `"react" \| "html"` | Optional. The server can detect it from `package.json`. |
 | `name` | string | Optional. Maximum length is 120 characters. |
