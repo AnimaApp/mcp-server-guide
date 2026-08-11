@@ -11,7 +11,7 @@ interface:
   short_description: "Use local code with Agent Grid and Git"
   icon_small: "./assets/agent-grid-logo.svg"
   brand_color: "#FF6250"
-  default_prompt: ""
+  default_prompt: "Use $agent-grid-full to create an Agent Grid artifact from my local code and update it with Git."
 
 policy:
   allow_implicit_invocation: true
