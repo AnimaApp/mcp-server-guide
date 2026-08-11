@@ -53,19 +53,29 @@ artifact-create(type: "l2c", url: "https://stripe.com/payments",
 
 User: *"The header on https://app.agentgrid.io/artifacts/mr25vsjppVtbMx is broken on mobile."*
 
-The `sessionId` is the last path segment. Don't regenerate the artifact, and don't drive the webapp — edit it over git.
+The `sessionId` is the last path segment. Do not generate the artifact again. Do not use the webapp.
 
 ```
-artifact-get_git_token(sessionId: "mr25vsjppVtbMx") → { gitRemoteUrl }
+artifact-explore(sessionId: "mr25vsjppVtbMx", action: "search", query: "Header")
+→ { revision: "<full commit id>", matches }
+
+artifact-explore(sessionId: "mr25vsjppVtbMx", action: "read", paths: ["src/Header.tsx"])
+→ { revision: "<full commit id>", files }
+
+artifact-edit(
+  sessionId: "mr25vsjppVtbMx",
+  baseRevision: "<full commit id>",
+  commitMessage: "Fix header layout on mobile",
+  changes: [{
+    op: "str_replace",
+    path: "src/Header.tsx",
+    oldText: "<exact text>",
+    newText: "<new text>"
+  }]
+)
 ```
 
-```bash
-git clone <gitRemoteUrl> artifact && cd artifact
-# find the header component, fix the responsive styles
-git commit -am "Fix header layout on mobile" && git push
-```
-
-The push updates the live artifact. Report the `playgroundUrl` so they can check it.
+The edit updates the live artifact. Give the `playgroundUrl` to the user.
 
 ## 5. Host code you already have
 

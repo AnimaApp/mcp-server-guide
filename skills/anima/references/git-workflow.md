@@ -1,6 +1,8 @@
 # Git workflow
 
-Every artifact is a real git repository. Cloning and pushing is how **you** change its content — humans edit in the Agent Grid webapp, agents use git. Don't drive the webapp through browser automation, and don't re-generate an artifact to change it.
+Every artifact is a git repository. Use this flow for very large repositories or full git workflows.
+
+Use `artifact-explore` and `artifact-edit` for normal text file changes. These tools need no shell, git, or network access.
 
 ## Getting a remote
 

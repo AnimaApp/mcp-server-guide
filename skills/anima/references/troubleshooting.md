@@ -99,11 +99,13 @@ git remote set-url origin <new gitRemoteUrl>
 
 ## I want to edit an artifact but only have a URL
 
-The `sessionId` is the last path segment of `https://app.agentgrid.io/artifacts/<sessionId>` (also served as `https://dev.animaapp.com/chat/<sessionId>`). Pass it to `artifact-get_git_token`. If you have no URL at all, run `workspace-list_artifacts`.
+The `sessionId` is the last path segment of the artifact URL. Pass it to `artifact-explore`. Use `workspace-list_artifacts` if you have no URL.
 
 ## How do I edit an artifact's content?
 
-Through git — `artifact-get_git_token`, clone, commit, push. (The webapp is the human's editor; don't drive it with browser automation.) Renames and visibility are the exception: those are metadata, via `artifact-update_metadata`.
+Use `artifact-explore` to find and read the files. Pass its `revision` to `artifact-edit` as `baseRevision`.
+
+Use git for very large repositories or full git workflows. Use `artifact-update_metadata` for names and visibility.
 
 ## `designSystem` publish fails
 

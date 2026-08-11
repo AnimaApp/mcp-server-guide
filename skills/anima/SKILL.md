@@ -31,12 +31,12 @@ Two ideas carry most of the work:
 |---|---|---|
 | Something new built for them | **A. Generate** | `artifact-create` (p2c / l2c / f2c) |
 | Their own code hosted on Agent Grid | **B. Bring your own** | `artifact-create` (import / empty) |
-| An existing artifact changed | **C. Edit** | `artifact-get_git_token` → clone, commit, push |
+| An existing artifact changed | **C. Edit** | `artifact-explore` → `artifact-edit` |
 | Figma design implemented **in their repo** | **D. Codegen** | `codegen-figma_to_code` |
 
 The one that gets confused most is A vs D. "Turn this Figma into a live site" is **A** (creates a hosted artifact). "Implement this Figma in my project" is **D** (writes files into their codebase, no artifact). When it's genuinely unclear, ask: *"Do you want a live hosted app, or code files in your project?"*
 
-Job C is how you change an artifact's content: humans edit in the Agent Grid webapp, agents use git. Don't reach for browser automation, and don't re-generate an artifact to edit it.
+Job C changes an artifact's content through MCP. Do not use browser automation. Do not generate the artifact again.
 
 ---
 
@@ -196,28 +196,42 @@ anima create -t empty --framework react --name "My project"
 
 ## Job C: Edit an existing artifact
 
-An artifact is a real git repo. Git is your route to its files — the webapp is the human's.
+Use `artifact-explore` and `artifact-edit` for normal file changes. These tools need no shell, git, or network access.
 
 ```
-artifact-get_git_token(sessionId: "mr25vsjppVtbMx")
-→ { gitRemoteUrl }
+artifact-explore(sessionId: "mr25vsjppVtbMx", action: "search", query: "Header")
+→ { revision: "<full commit id>", matches }
+
+artifact-explore(sessionId: "mr25vsjppVtbMx", action: "read", paths: ["src/Header.tsx"])
+→ { revision: "<full commit id>", files }
+
+artifact-edit(
+  sessionId: "mr25vsjppVtbMx",
+  baseRevision: "<full commit id>",
+  commitMessage: "Fix header layout on mobile",
+  changes: [{
+    op: "str_replace",
+    path: "src/Header.tsx",
+    oldText: "<exact text>",
+    newText: "<new text>"
+  }]
+)
+→ { success, revision, previousRevision, changedFiles }
 ```
 
-```bash
-git clone <gitRemoteUrl> && cd <repo>
-# edit, commit
-git push          # pushing updates the live artifact
-```
+Start with `search` when you do not know the file. Read each file before you change it.
 
-- The `gitRemoteUrl` embeds a **short-lived, single-artifact token** — treat it as a secret, never log or echo it.
-- Lifetime is `ttlSeconds`: default and max **3600**, minimum **300**.
-- **Tokens cannot be renewed.** On a "token expired" git error, call the tool again and point the remote at the fresh URL:
-  ```bash
-  git remote set-url origin <new gitRemoteUrl>
-  ```
-- Read-only or read-write is decided by your access to the artifact.
+Pass the latest full `revision` to `artifact-edit` as `baseRevision`. The tool rejects stale revisions with `REVISION_CONFLICT`.
 
-To change the **name or visibility** instead of the content, that's metadata — use `artifact-update_metadata`, not git.
+The tool applies all `changes` in order and creates one commit. The maximum is 20 operations.
+
+Prefer `str_replace` for existing files. Use `write` only when you have the complete file content.
+
+Use `delete` to remove a file. Use `move` to change a path. Change affected imports yourself.
+
+Use `artifact-get_git_token` for very large repositories or full git workflows. See [Git workflow](references/git-workflow.md).
+
+Use `artifact-update_metadata` to change the name or visibility. It does not change content.
 
 Don't know the `sessionId`? `workspace-list_artifacts()` (no parameters) lists your team's artifacts with theirs.
 
@@ -308,7 +322,7 @@ anima unpublish <sessionId>
 | Generate | `anima create -t p2c\|l2c\|f2c ...` (does not await completion) | `artifact-create` + `artifact-status` |
 | Import own code | `anima create -t import --from <path>` | `artifact-get_zip_upload_url` + `artifact-create` |
 | Empty repo | `anima create -t empty --framework <fw>` | `artifact-create` |
-| Edit content | `anima get-git-token <url\|id>` | `artifact-get_git_token` |
+| Edit content | `anima get-git-token <url\|id>` | `artifact-explore` + `artifact-edit` |
 | List artifacts | `anima list` | `workspace-list_artifacts` |
 | Rename / visibility | `anima update <id> --name --privacy` | `artifact-update_metadata` |
 | Duplicate | `anima duplicate <url\|id>` | `artifact-duplicate` |
