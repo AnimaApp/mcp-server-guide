@@ -9,7 +9,7 @@ dependencies:
 interface:
   display_name: "Agent Grid Full"
   short_description: "Use local code with Agent Grid and Git"
-  icon_small: "./assets/anima-icon.svg"
+  icon_small: "./assets/agent-grid-logo.svg"
   brand_color: "#FF6250"
   default_prompt: ""
 

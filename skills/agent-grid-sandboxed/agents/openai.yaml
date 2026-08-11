@@ -9,7 +9,7 @@ dependencies:
 interface:
   display_name: "Agent Grid Sandboxed"
   short_description: "Use local text files with Agent Grid over MCP"
-  icon_small: "./assets/anima-icon.svg"
+  icon_small: "./assets/agent-grid-logo.svg"
   brand_color: "#FF6250"
   default_prompt: ""
 
