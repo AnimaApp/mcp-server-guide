@@ -11,7 +11,7 @@ interface:
   short_description: "Build, host, and publish web apps from prompts, websites, and Figma"
   icon_small: "./assets/anima-icon.svg"
   brand_color: "#FF6250"
-  default_prompt: "Use $anima to build and publish a web app from my prompt, website, or Figma design."
+  default_prompt: "Use $anima to create a web app from my prompt, website, Figma design, or local code."
 
 policy:
   allow_implicit_invocation: true
