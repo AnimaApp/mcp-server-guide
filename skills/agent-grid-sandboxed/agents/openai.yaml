@@ -4,7 +4,7 @@ dependencies:
       value: "anima"
       description: "Agent Grid MCP server for sandboxed artifact work"
       transport: "streamable_http"
-      url: "https://api.agentgrid.io/v1/mcp"
+      url: "https://api.agentgrid.io/v1/sandbox-mcp"
 
 interface:
   display_name: "Agent Grid Sandboxed"

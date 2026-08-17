@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "agentgrid-sandbox": {
+      "url": "https://api.agentgrid.io/v1/sandbox-mcp"
+    }
+  }
+}

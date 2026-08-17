@@ -18,7 +18,7 @@ Add nearby exact lines to `oldText`. Or use `replaceAll` with `expectedReplaceme
 
 ## The create call rejects `files`
 
-Make sure every value contains UTF-8 text. The limit is 1000 files and 10 MB of decoded text.
+Make sure every value contains UTF-8 text; `artifact-create` cannot take binary files. Inline projects are limited to roughly 100 KB of decoded text, and there is no ZIP or external-upload path.
 
 ## A duplicate call lost its response
 

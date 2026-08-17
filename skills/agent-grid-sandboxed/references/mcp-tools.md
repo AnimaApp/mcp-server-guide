@@ -18,7 +18,7 @@ Use this schema for the local-files flow:
 | `framework` | `"react" \| "html"` | Optional. The server can detect it from `package.json`. |
 | `name` | string | Optional. Maximum length is 120 characters. |
 
-The server accepts at most 1000 files and 10 MB of decoded text.
+Inline projects are limited to roughly 100 KB of decoded text and cannot contain binary files. There is no ZIP or external-upload flow on this MCP surface.
 
 Each file path has a maximum length of 512 characters.
 
@@ -43,6 +43,10 @@ The maximum limits are 500 tree entries, 500 search matches, and 50 history comm
 `tree` and `search` can return `truncated: true`. Use `path` to narrow the next call.
 
 Each search match gives its line and `occurrences`. One line can contain more than one occurrence.
+
+Reading a binary file with `read` returns `asset: true` with its `size`, `mime`, and `oid` instead of `content`.
+
+`tree` and `search` skip `node_modules`, `dist`, and `build` by default. Set `includeExcluded: true` to include them.
 
 ## `artifact-edit`
 

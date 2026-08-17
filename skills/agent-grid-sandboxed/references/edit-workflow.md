@@ -12,7 +12,7 @@ Do not use `HEAD` or an abbreviated revision as `baseRevision`.
 ## Use edit operations
 
 - `str_replace` uses `path`, `oldText`, and `newText`.
-- `write` uses `path` and complete `content`.
+- `write` uses `path` and complete `content`. Content is UTF-8 text by default; set `encoding: "base64"` for inline binary content up to 256 KB decoded.
 - `delete` uses `path`.
 - `move` uses `fromPath` and `toPath`.
 
@@ -35,6 +35,8 @@ A `move` operation does not update relative imports inside the moved file.
 Add later `str_replace` operations to update all affected imports.
 
 The server applies all operations or none. One successful call creates one commit.
+
+Keep `commitMessage` plain text. Do not add attribution trailers such as `Co-Authored-By` or `Agent-Id`; the server stamps those itself and rejects a message that already contains one.
 
 ## Recover from `REVISION_CONFLICT`
 
