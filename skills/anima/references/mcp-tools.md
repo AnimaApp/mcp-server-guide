@@ -151,7 +151,7 @@ Copies code, assets, and supported database content. Does **not** copy chat or c
 
 ## `workspace-list_artifacts`
 
-Lists your team's artifacts. **No parameters.** App rows include the `sessionId` the `artifact-*` tools need; `markdown` and `asset` rows carry only an `id`. The result may set `truncated`, and an agent lacking `read` access gets an empty list rather than an error — an empty result is not proof the workspace is empty.
+Lists your team's artifacts. **No parameters.** Every row carries the `sessionId` the `artifact-*` tools need and a `type` (`app`, `markdown`, or `asset`). The result may set `truncated`, and an agent lacking `read` access gets an empty list rather than an error — an empty result is not proof the workspace is empty.
 
 ---
 
