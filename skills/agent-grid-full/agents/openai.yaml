@@ -1,0 +1,17 @@
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "anima"
+      description: "Agent Grid MCP server for artifacts that contain local code"
+      transport: "streamable_http"
+      url: "https://api.agentgrid.io/v1/mcp"
+
+interface:
+  display_name: "Agent Grid Full"
+  short_description: "Use local code with Agent Grid and Git"
+  icon_small: "./assets/agent-grid-logo.svg"
+  brand_color: "#FF6250"
+  default_prompt: "Use $agent-grid-full to create an Agent Grid artifact from my local code."
+
+policy:
+  allow_implicit_invocation: true
