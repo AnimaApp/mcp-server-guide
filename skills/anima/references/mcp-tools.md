@@ -134,7 +134,7 @@ Send at least one of `name` / `privacy`; both may be set in one call.
 
 ## `artifact-duplicate`
 
-Clones an artifact into a new, independent one in your team's Default workspace.
+Clones an artifact into a new, independent one in your team's General workspace.
 
 | Parameter | Required | Type | Notes |
 |---|---|---|---|
