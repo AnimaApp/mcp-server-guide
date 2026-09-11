@@ -293,11 +293,11 @@ anima unpublish <sessionId>
 
 **`artifact-update_metadata(sessionId, name?, privacy?)`** — display name and/or visibility (`public` = anyone with the link, `private` = team only). Send at least one. Never touches code.
 
-**`artifact-duplicate(sessionId, name?)`** — clones an artifact into a new, independent one in your team's Default workspace. Copies code, assets, and supported database content; does **not** copy chat or custom domains. Source must be in your current team. Default name is `"<source name> (Copy)"`.
+**`artifact-duplicate(sessionId, name?)`** — clones an artifact into a new, independent one in your team's General workspace. Copies code, assets, and supported database content; does **not** copy chat or custom domains. Source must be in your current team. Default name is `"<source name> (Copy)"`.
 
 > **Not idempotent.** If a duplicate call times out or its response is lost, call `workspace-list_artifacts` to check before retrying — the first call may have already created the copy.
 
-**`workspace-list_artifacts()`** — no parameters; lists your team's artifacts. App rows carry a `sessionId` (what the `artifact-*` tools need); `markdown` and `asset` rows carry only an `id`. The result may set `truncated`, and an agent without `read` access gets an empty list rather than an error.
+**`workspace-list_artifacts()`** — no parameters; lists your team's artifacts. Every row carries a `sessionId` (what the `artifact-*` tools need) and a `type` (`app`, `markdown`, or `asset`). The result may set `truncated`, and an agent without `read` access gets an empty list rather than an error.
 
 ---
 
