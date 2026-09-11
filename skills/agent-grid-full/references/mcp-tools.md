@@ -38,13 +38,15 @@ The result includes `gitRemoteUrl`, `access`, `expiresAt`, and `nextSteps`.
 
 | Tool | Exact parameters | Important rule |
 |---|---|---|
-| `workspace-list_artifacts` | `{}` | The list can set `truncated`. |
+| `workspace-list_artifacts` | `{}` | Rows contain `sessionId` and `type`; the bounded list can set `truncated`. |
 | `artifact-update_metadata` | `{ sessionId, name?, privacy? }` | Send `name` or `privacy`. Privacy is `"public"` or `"private"`. |
 | `artifact-duplicate` | `{ sessionId, name? }` | Check the list before you retry a lost response. |
 | `artifact-publish` | `{ sessionId, mode?: "webapp" }` | Publishing makes the app public. |
 | `artifact-unpublish` | `{ sessionId }` | This tool keeps the artifact and its code. |
 | `artifact-delete` | `{ sessionId }` | This tool makes a reversible soft deletion. |
 
-`artifact-duplicate` does not copy chat or custom domains. The source must belong to the current team.
+`workspace-list_artifacts` reads the team's single General workspace. A short or empty result is not a complete inventory, even when `truncated` is false.
+
+`artifact-duplicate` creates the copy in that General workspace. It does not copy chat or custom domains, and the source must belong to the current team.
 
 Unpublish a published artifact before deletion. MCP cannot permanently delete an artifact.

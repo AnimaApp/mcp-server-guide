@@ -51,7 +51,7 @@ Read [Git workflow](https://github.com/AnimaApp/mcp-server-guide/blob/main/skill
 
 ## Use lifecycle tools
 
-- Use `workspace-list_artifacts()` to find artifacts.
+- Use `workspace-list_artifacts()` to find recent readable artifacts. Every row has a `sessionId`; the bounded result can omit artifacts.
 - Use `artifact-update_metadata` to change the name or privacy.
 - Use `artifact-duplicate` to create an independent copy.
 - Use `artifact-publish` only when the user asks for a public deployment.
