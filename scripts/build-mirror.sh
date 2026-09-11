@@ -27,3 +27,19 @@ sed "s#](references/#](${BASE}/references/#g" "$SRC" \
     ' > "$DEST"
 
 echo "Wrote $DEST"
+
+for NAME in agent-grid-full agent-grid-sandboxed; do
+  SRC="skills/${NAME}/SKILL.md"
+  DEST="${NAME}/SKILL.md"
+  BASE="https://github.com/AnimaApp/mcp-server-guide/blob/main/skills/${NAME}"
+
+  mkdir -p "$(dirname "$DEST")"
+
+  sed "s#](references/#](${BASE}/references/#g" "$SRC" \
+    | awk -v note="<!-- Generated from $SRC by scripts/build-mirror.sh — do not edit directly. -->" '
+        { print }
+        /^---$/ { if (++fence == 2) print "\n" note }
+      ' > "$DEST"
+
+  echo "Wrote $DEST"
+done
