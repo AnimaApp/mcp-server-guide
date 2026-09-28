@@ -134,12 +134,13 @@ Send at least one of `name` / `privacy`; both may be set in one call.
 
 ## `artifact-duplicate`
 
-Clones an artifact into a new, independent one in your team's General workspace.
+Clones an artifact into a new, independent one, filed in the workspace you name or in the one workspace you can write in.
 
 | Parameter | Required | Type | Notes |
 |---|---|---|---|
 | `sessionId` | yes | string | Source, must be in your current team |
 | `name` | no | string | Defaults to `"<source name> (Copy)"` |
+| `workspaceId` | no | string | From `workspace-list_workspaces`. Required when you can write in several |
 
 Copies code, assets, and supported database content. Does **not** copy chat or custom domains. If the database can't be copied, the whole duplication fails. Duplicating across teams is not currently supported.
 
@@ -149,9 +150,36 @@ Copies code, assets, and supported database content. Does **not** copy chat or c
 
 ---
 
+## `workspace-list_workspaces`
+
+The workspaces you can reach in your team. **No parameters.** Every row carries `workspaceId`, `name`, `isGeneral`, and the `capabilities` you hold there — a subset of `read`, `write`, `share`, `publish`. A workspace id is opaque; this names the ones you can reach, and every `workspace-list_artifacts` row carries the id its artifact is filed in. An empty list means your access reaches none of this team's workspaces, rather than that the team has none.
+
+---
+
 ## `workspace-list_artifacts`
 
-Lists your team's artifacts. **No parameters.** Every row carries the `sessionId` the `artifact-*` tools need and a `type` (`app`, `markdown`, or `asset`). The result may set `truncated`, and an agent lacking `read` access gets an empty list rather than an error — an empty result is not proof the workspace is empty.
+Lists the artifacts you can read, across every workspace you reach or in the one you name.
+
+| Parameter | Required | Type | Notes |
+|---|---|---|---|
+| `workspaceId` | no | string | From `workspace-list_workspaces`, or any listing row. Omit to span every workspace you can read |
+
+Every row carries the `sessionId` the `artifact-*` tools need, a `type` (`app`, `markdown`, or `asset`), and the `workspaceId` it is filed in. The result may set `truncated`, and an agent lacking `read` access gets an empty list rather than an error — an empty result is not proof the workspace is empty.
+
+---
+
+## `workspace-move_artifact`
+
+Re-files an artifact under another workspace of the same team.
+
+| Parameter | Required | Type | Notes |
+|---|---|---|---|
+| `sessionId` | yes | string | The artifact to move |
+| `workspaceId` | yes | string | The destination, in the same team |
+
+The repository, `sessionId`, URL, history, and live deployment stay as they are, so there is no new link to send. What changes is who can reach it: an artifact is reached through the workspace it is filed in, so a move hands it to the people who reach the destination and takes it from the rest. Say what a move will change before making one the user did not ask for. Needs `write` on the artifact and `write` in the destination; moving it where it already is leaves everything as it was.
+
+**Returns:** `{ success, sessionId, workspaceId, workspaceName, nextSteps }`
 
 ---
 

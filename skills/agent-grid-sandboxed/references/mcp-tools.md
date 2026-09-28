@@ -27,9 +27,9 @@ The call returns the first commit in `revision`. It also returns `sessionId`, `a
 
 ## `artifact-create_knowledge`
 
-Creates a ready knowledge artifact from Anima's template in the team's General workspace.
+Creates a ready knowledge artifact from Anima's template, in the workspace you name or in the one workspace you can write in.
 
-Use `{}` or `{ name: "<optional name>" }`. The name has a maximum length of 120 characters. Do not pass files, a ZIP upload, a framework, or an artifact type; the template supplies them.
+Use `{}`, `{ name: "<optional name>" }`, or `{ workspaceId }` to choose the destination. The name has a maximum length of 120 characters. Do not pass files, a ZIP upload, a framework, or an artifact type; the template supplies them.
 
 The call returns `sessionId`, the initial `revision`, `artifactUrl`, the applicable preview URLs, and template details. Use `artifact-explore` and `artifact-edit` to inspect and change it.
 
@@ -79,15 +79,20 @@ Read all replies before acting. A reply to an unassigned comment announces that 
 
 | Tool | Exact parameters | Important rule |
 |---|---|---|
-| `workspace-list_artifacts` | `{}` | Rows contain `sessionId` and `type`; the bounded list can set `truncated`. |
+| `workspace-list_artifacts` | `{}` | Rows contain `sessionId`, `type`, and the `workspaceId` the artifact is filed in; the bounded list can set `truncated`. |
 | `artifact-update_metadata` | `{ sessionId, name?, privacy? }` | Send `name` or `privacy`. Privacy is `"public"` or `"private"`. |
-| `artifact-duplicate` | `{ sessionId, name? }` | Check the list before you retry a lost response. |
+| `artifact-duplicate` | `{ sessionId, name?, workspaceId? }` | Check the list before you retry a lost response. |
+| `workspace-move_artifact` | `{ sessionId, workspaceId }` | Both are required. Needs `write` on the artifact and in the destination. |
 | `artifact-publish` | `{ sessionId, mode?: "webapp" }` | Publishing makes the app public. |
 | `artifact-unpublish` | `{ sessionId }` | This tool keeps the artifact and its code. |
 | `artifact-delete` | `{ sessionId }` | This tool makes a reversible soft deletion. |
 
-`workspace-list_artifacts` reads the team's single General workspace, most recently updated first. Access is limited by the human's grant. A short or empty result is not a complete inventory, even when `truncated` is false.
+A team has a General workspace and may have any number of others, and what you may do can differ between them. This surface has no workspace listing, so a workspace id reaches you on a `workspace-list_artifacts` row.
 
-`artifact-duplicate` creates the copy in that General workspace. It does not copy chat or custom domains, and the source must belong to the current team.
+`workspace-list_artifacts` spans every workspace you can read, most recently updated first. Access is limited by the human's grant. A short or empty result is not a complete inventory, even when `truncated` is false.
+
+`artifact-duplicate` files the copy in the workspace you name, or in the one workspace you can write in when you name none. When you can write in several, it refuses and lists them. It does not copy chat or custom domains, and the source must belong to the current team.
+
+`workspace-move_artifact` re-files an artifact under another workspace of the same team. The repository, `sessionId`, URL, history, and live deployment stay as they are; what changes is who can reach it, so say what a move will change before making one the user did not ask for. Moving an artifact where it already is leaves everything as it was.
 
 Unpublish a published artifact before deletion. MCP cannot permanently delete an artifact.
