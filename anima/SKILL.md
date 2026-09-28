@@ -299,7 +299,7 @@ anima unpublish <sessionId>
 
 > **Not idempotent.** If a duplicate call times out or its response is lost, call `workspace-list_artifacts` to check before retrying — the first call may have already created the copy.
 
-**`workspace-list_workspaces()`** — the workspaces you can reach and what you may do in each. A workspace id is opaque, so this is the only place one comes from.
+**`workspace-list_workspaces()`** — the workspaces you can reach and what you may do in each. A workspace id is opaque; this names the ones you can reach, and every `workspace-list_artifacts` row carries the id its artifact is filed in.
 
 **`workspace-list_artifacts(workspaceId?)`** — lists the artifacts you can read, across every workspace you reach or in the one you name. Every row carries a `sessionId` (what the `artifact-*` tools need), a `type` (`app`, `markdown`, or `asset`), and the `workspaceId` it is filed in. The result may set `truncated`, and an agent without `read` access gets an empty list rather than an error.
 

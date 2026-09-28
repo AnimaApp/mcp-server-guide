@@ -29,7 +29,7 @@ The call returns the first commit in `revision`. It also returns `sessionId`, `a
 
 Creates a ready knowledge artifact from Anima's template, in the workspace you name or in the one workspace you can write in.
 
-Use `{}` or `{ name: "<optional name>" }`. The name has a maximum length of 120 characters. Do not pass files, a ZIP upload, a framework, or an artifact type; the template supplies them.
+Use `{}`, `{ name: "<optional name>" }`, or `{ workspaceId }` to choose the destination. The name has a maximum length of 120 characters. Do not pass files, a ZIP upload, a framework, or an artifact type; the template supplies them.
 
 The call returns `sessionId`, the initial `revision`, `artifactUrl`, the applicable preview URLs, and template details. Use `artifact-explore` and `artifact-edit` to inspect and change it.
 

@@ -152,7 +152,7 @@ Copies code, assets, and supported database content. Does **not** copy chat or c
 
 ## `workspace-list_workspaces`
 
-The workspaces you can reach in your team. **No parameters.** Every row carries `workspaceId`, `name`, `isGeneral`, and the `capabilities` you hold there — a subset of `read`, `write`, `share`, `publish`. A workspace id is opaque, so this is the only place one comes from. An empty list means your access reaches none of this team's workspaces, rather than that the team has none.
+The workspaces you can reach in your team. **No parameters.** Every row carries `workspaceId`, `name`, `isGeneral`, and the `capabilities` you hold there — a subset of `read`, `write`, `share`, `publish`. A workspace id is opaque; this names the ones you can reach, and every `workspace-list_artifacts` row carries the id its artifact is filed in. An empty list means your access reaches none of this team's workspaces, rather than that the team has none.
 
 ---
 

@@ -47,7 +47,7 @@ The result includes `gitRemoteUrl`, `access`, `expiresAt`, and `nextSteps`.
 | `artifact-unpublish` | `{ sessionId }` | This tool keeps the artifact and its code. |
 | `artifact-delete` | `{ sessionId }` | This tool makes a reversible soft deletion. |
 
-A team has a General workspace and may have any number of others, and what you may do can differ between them. `workspace-list_workspaces` is the only source of a workspace id, which is opaque.
+A team has a General workspace and may have any number of others, and what you may do can differ between them. A workspace id is opaque: `workspace-list_workspaces` names the ones you can reach, and every `workspace-list_artifacts` row carries the id of the workspace its artifact is filed in.
 
 `workspace-list_artifacts` spans every workspace you can read, most recently updated first, or one when you pass `workspaceId`. A short or empty result is not a complete inventory, even when `truncated` is false.
 
