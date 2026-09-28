@@ -10,7 +10,7 @@ metadata: {"clawdbot":{"emoji":"🎨","requires":{"env":["ANIMA_API_TOKEN"]},"pr
 
 # Use Agent Grid in a sandbox
 
-Agent Grid is a governed space where humans and agents share live artifacts. Each artifact is one repository in your team's General workspace.
+Agent Grid is a governed space where humans and agents share live artifacts. Each artifact is one repository, filed in one of your team's workspaces.
 
 Your access is limited to what the human who connected you consented to. It can be revoked at any time.
 
