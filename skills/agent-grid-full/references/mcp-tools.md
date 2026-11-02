@@ -26,6 +26,33 @@ An app needs `index.html`. A markdown artifact needs at least one `.md` file and
 
 The call returns the first commit in `revision`. It also returns `sessionId`, URLs, and file details.
 
+## `artifact-list_templates`
+
+Lists Anima's starter templates. Call it with `{}`. Each template has an `id`, a `name`, a `description`, the `artifactType` it creates and, for an app, its `framework`.
+
+Today's templates:
+
+| `id` | Creates |
+|---|---|
+| `react` | An app: Vite + React + TypeScript, styled with plain CSS |
+| `html` | An app: a static HTML, CSS and JavaScript site with no build step |
+| `presentation` | A presentation: a slide deck with images |
+| `second-brain` | A knowledge base |
+
+## `artifact-create_from_template`
+
+Creates a ready artifact from a template, in the workspace you name or in the one workspace you can write in.
+
+| Parameter | Type | Rule |
+|---|---|---|
+| `templateId` | string | Required. An `id` from `artifact-list_templates`. |
+| `name` | string | Optional. Maximum length is 120 characters. |
+| `workspaceId` | string | Optional. Required when you can write in more than one workspace. |
+
+Do not pass files, a ZIP upload, a framework, or an artifact type; the template supplies them. Use it when the user wants a new React app, HTML site or presentation and has no code of their own to import.
+
+The call returns `sessionId`, the initial `revision`, `artifactUrl`, `templateId`, `artifactType`, the applicable preview URLs, and file details. Then change the template's content to what the user asked for.
+
 ## `artifact-get_git_token`
 
 Call `artifact-get_git_token(sessionId, ttlSeconds?)` for Git access.

@@ -39,6 +39,8 @@ artifact-create(
 
 The call returns `sessionId`, `revision`, `playgroundUrl`, and `previewUrl`. The artifact is ready immediately.
 
+To start a new React app, HTML site or presentation from Anima's starter template instead, call `artifact-list_templates()` and then `artifact-create_from_template(templateId: "react")` with an optional `name`. Do not pass files, a framework, or an artifact type. Then clone it with Git and change it into what the user asked for.
+
 ## Change artifact code
 
 Call `artifact-get_git_token` with the `sessionId`. Then clone the returned `gitRemoteUrl`.

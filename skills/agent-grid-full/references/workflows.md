@@ -7,6 +7,13 @@
 3. Call `artifact-create` with `type: "import"` and `files`.
 4. Return the `playgroundUrl` or `previewUrl` to the user.
 
+## Start from a template
+
+1. Call `artifact-list_templates` and pick the template that matches the request.
+2. Call `artifact-create_from_template` with its `templateId` and an optional `name`.
+3. Clone it with `artifact-get_git_token`, change it, commit, and push.
+4. Return `artifactUrl` to the user.
+
 ## Change an artifact
 
 1. Get the `sessionId` from the URL or `workspace-list_artifacts()`.

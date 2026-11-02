@@ -33,6 +33,7 @@ Two ideas carry most of the work:
 |---|---|---|
 | Something new built for them | **A. Generate** | `artifact-create` (p2c / l2c / f2c) |
 | Their own code hosted on Agent Grid | **B. Bring your own** | `artifact-create` (import / empty) |
+| A new React app, HTML site, presentation or knowledge base from a starter | **B. Start from a template** | `artifact-list_templates` → `artifact-create_from_template` |
 | An existing artifact changed | **C. Edit** | `artifact-get_git_token` → clone, commit, push |
 | Figma design implemented **in their repo** | **D. Codegen** | `codegen-figma_to_code` |
 
@@ -194,6 +195,10 @@ anima create -t import --from ./my-project --name "My project"
 anima create -t empty --framework react --name "My project"
 ```
 
+### Start from a template
+
+When the user wants a new app, site or deck and has no code of their own, start from one of Anima's templates instead of an empty repo: `artifact-list_templates` lists them (`react`, `html`, `presentation`, `second-brain`), and `artifact-create_from_template(templateId, name?)` creates a ready artifact from one. Pass no files, framework or artifact type: the template supplies them. The artifact is ready immediately; then edit it (Job C) into what the user asked for.
+
 ---
 
 ## Job C: Edit an existing artifact
@@ -314,6 +319,7 @@ anima unpublish <sessionId>
 | Generate | `anima create -t p2c\|l2c\|f2c ...` (does not await completion) | `artifact-create` + `artifact-status` |
 | Import own code | `anima create -t import --from <path>` | `artifact-get_zip_upload_url` + `artifact-create` |
 | Empty repo | `anima create -t empty --framework <fw>` | `artifact-create` |
+| From a template | `anima templates`, then `anima create-from-template <id>` | `artifact-list_templates` + `artifact-create_from_template` |
 | Edit content | `anima get-git-token <url\|id>` | `artifact-get_git_token` |
 | List artifacts | `anima list` | `workspace-list_artifacts` |
 | Rename / visibility | `anima update <id> --name --privacy` | `artifact-update_metadata` |
