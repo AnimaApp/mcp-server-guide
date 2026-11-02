@@ -42,6 +42,8 @@ The call returns `sessionId`, `revision`, `artifactUrl`, and the applicable prev
 
 To create a knowledge artifact from Anima's template, call `artifact-create_knowledge()` or pass only an optional `name`. Do not pass files, a framework, or an artifact type.
 
+To start a new React app, HTML site or presentation from Anima's starter template instead of writing it from scratch, call `artifact-list_templates()`, pick the template that matches the request (`react`, `html` or `presentation`), and pass its `id` to `artifact-create_from_template(templateId: "<id>")` with an optional `name`. Do not pass files, a framework, or an artifact type. Then edit the returned artifact into what the user asked for.
+
 ## Change artifact code
 
 Use `artifact-explore` to list, search, read, or review artifact content.

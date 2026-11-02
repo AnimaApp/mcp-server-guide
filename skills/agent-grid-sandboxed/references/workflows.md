@@ -13,6 +13,13 @@
 2. Return `artifactUrl` to the user.
 3. Use the returned `revision` as `baseRevision` if you edit it next.
 
+## Start from a template
+
+1. Call `artifact-list_templates` and pick the template that matches the request.
+2. Call `artifact-create_from_template` with its `templateId` and an optional `name`.
+3. Read the result with `artifact-explore`, then change it with `artifact-edit`, using the returned `revision` as `baseRevision`.
+4. Return `artifactUrl` to the user.
+
 ## Change an artifact
 
 1. Get the `sessionId` from the URL or `workspace-list_artifacts()`.
